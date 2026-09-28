@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Business Hierarchy of Needs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#1A1A18; --ink:#ffffff; --muted:#a8a69f; --line:#3a3935;
+    --field:#232320; --accent:#fec200; --accent-ink:#1A1A18; --soft:#26261f;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    color-scheme:dark;
+  }
+  *,*::before,*::after{box-sizing:inherit}
+  html{scroll-padding-top:env(safe-area-inset-top,0px); background:var(--bg)}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Inter",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:18px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:28px 22px 80px}
+  h1,h2,h3{font-family:"Outfit","Inter",sans-serif; margin:0}
+  h1{font-size:2.8rem; line-height:1.08; font-weight:700; letter-spacing:-0.01em; margin-bottom:22px}
+  h2{font-size:1.75rem; line-height:1.2; font-weight:600; margin-bottom:10px}
+  p{margin:0 0 16px; max-width:60ch}
+  .muted{color:var(--muted)}
+  a{color:var(--accent)}
+
+  /* top nav */
+  .crumbs{display:flex; flex-wrap:wrap; gap:6px 18px; margin:0 0 14px; font-size:.9rem}
+  .crumbs button{
+    background:none; border:0; padding:4px 0; font:inherit; color:var(--muted); cursor:pointer;
+    border-bottom:2px solid transparent;
+  }
+  .crumbs button:hover{color:var(--ink)}
+  .crumbs button.on{color:var(--ink); border-bottom-color:var(--accent)}
+  .track{display:flex; gap:4px; margin:0 0 40px}
+  .track span{flex:1; height:4px; background:var(--line)}
+  .track span.done{background:var(--accent)}
+
+  /* intro */
+  .needs{list-style:none; padding:0; margin:26px 0 28px; display:grid; gap:14px}
+  .needs li{border-left:4px solid var(--accent); padding:4px 0 4px 18px}
+  .needs strong{display:block; font-family:"Outfit",sans-serif; font-size:1.3rem; font-weight:600}
+  .needs span{color:var(--muted)}
+  .punch{font-size:1.2rem; font-weight:500; max-width:52ch}
+  .steps{list-style:none; counter-reset:s; padding:0; margin:24px 0 30px; display:grid; gap:18px}
+  .steps li{counter-increment:s; display:grid; grid-template-columns:44px 1fr; gap:4px 14px}
+  .steps li::before{
+    content:counter(s); grid-row:span 2; width:36px; height:36px; border-radius:4px;
+    background:var(--accent); color:var(--accent-ink); font-family:"Outfit",sans-serif;
+    font-weight:700; display:flex; align-items:center; justify-content:center;
+  }
+  .steps strong{font-family:"Outfit",sans-serif; font-size:1.15rem; font-weight:600}
+  .steps span{color:var(--muted)}
+
+  /* bucket setup */
+  .setup{margin:0 0 30px; padding-bottom:26px; border-bottom:2px solid var(--accent)}
+  .setup .num{color:var(--accent); font-family:"Outfit",sans-serif; font-weight:600; font-size:1rem; margin-bottom:6px}
+  .setup h2{font-size:2.2rem; line-height:1.12; font-weight:700; margin:0 0 12px}
+  .setup p{font-size:1.1rem; margin:0}
+
+  .q{font-family:"Outfit",sans-serif; font-size:1.45rem; line-height:1.3; font-weight:600; margin:0 0 6px}
+  .hint{color:var(--muted); margin:0 0 16px; font-size:1rem}
+  textarea{
+    width:100%; min-height:190px; resize:vertical; font:inherit; font-size:1rem; color:var(--ink);
+    background:var(--field); border:1.5px solid var(--line); border-radius:4px; padding:14px 16px;
+  }
+  textarea.small{min-height:110px}
+  textarea:focus{outline:none; border-color:var(--accent)}
+  textarea::placeholder{color:#6f6d66}
+
+  .example{
+    background:var(--soft); border-left:4px solid var(--accent); border-radius:4px;
+    padding:14px 18px; margin:0 0 18px; font-size:.98rem;
+  }
+  .example b{display:block; font-family:"Outfit",sans-serif; font-weight:600; color:var(--accent); margin-bottom:4px; font-size:.95rem}
+  .example p{margin:0; color:#e7e5de}
+
+  .check{margin:0 0 30px}
+  .check .q{font-size:1.2rem; margin-bottom:12px}
+
+  input[type=text]{
+    width:100%; font:inherit; font-size:1rem; color:var(--ink); background:var(--field);
+    border:1.5px solid var(--line); border-radius:4px; padding:12px 16px;
+  }
+  input[type=text]:focus{outline:none; border-color:var(--accent)}
+  input[type=text]::placeholder{color:#6f6d66}
+  .recap{border:1.5px dashed var(--line); border-radius:4px; padding:14px 18px; margin:0 0 30px; font-size:.95rem}
+  .recap b{display:block; font-family:"Outfit",sans-serif; font-weight:600; color:var(--muted); margin-bottom:4px}
+  .recap p{margin:0; white-space:pre-wrap; color:#e7e5de}
+  .choices{display:grid; gap:10px}
+  .choice{
+    text-align:left; background:var(--field); color:var(--ink); border:1.5px solid var(--line);
+    border-radius:4px; padding:14px 18px; cursor:pointer; font:inherit;
+  }
+  .choice strong{display:block; font-family:"Outfit",sans-serif; font-size:1.15rem; font-weight:600}
+  .choice span{display:block; color:var(--muted); font-size:.95rem}
+  .choice:hover{border-color:var(--muted)}
+  .choice.on{border-color:var(--accent); background:var(--soft); box-shadow:inset 4px 0 0 var(--accent)}
+  .res-bucket.position{background:var(--soft); border-radius:4px; padding:20px 24px 6px}
+  .copyrow{display:flex; align-items:center; gap:14px}
+  .hint em{color:var(--ink); font-style:normal; font-weight:500}
+
+  .items{display:grid; gap:8px; margin:0 0 10px}
+  .item{display:flex; gap:8px; align-items:center}
+  .item input{flex:1}
+  .rm{
+    flex:none; width:40px; height:46px; border:1.5px solid var(--line); background:transparent; color:var(--muted);
+    border-radius:4px; font-size:1.3rem; line-height:1; cursor:pointer;
+  }
+  .rm:hover:not(:disabled){color:var(--ink); border-color:var(--muted)}
+  .rm:disabled{opacity:.3; cursor:default}
+  button.add{
+    background:transparent; border:1.5px dashed var(--line); color:var(--ink); border-radius:4px;
+    padding:10px 16px; font:500 .95rem "Inter",sans-serif; cursor:pointer; width:100%; text-align:left;
+  }
+  button.add:hover{border-color:var(--accent); color:var(--accent)}
+  .builder{display:grid; gap:10px; margin-top:4px}
+  .builder .fixed{font-family:"Outfit",sans-serif; font-size:1.2rem; font-weight:600}
+  .builder .need{color:var(--accent)}
+  .preview{margin-top:20px}
+  .preview b{display:block; font-family:"Outfit",sans-serif; font-weight:600; color:var(--muted); font-size:.95rem; margin-bottom:6px}
+  .preview p{margin:0; font-family:"Outfit",sans-serif; font-size:1.35rem; line-height:1.35; font-weight:500; max-width:none}
+  .ra.stmt{font-family:"Outfit",sans-serif; font-size:1.15rem; line-height:1.4; color:var(--ink)}
+  .ra-list{margin:0; padding-left:20px; color:#e7e5de}
+  button.quiet.inline{padding:0; color:var(--accent)}
+  .choice{font-size:1rem}
+
+  /* buttons */
+  .row{display:flex; justify-content:space-between; align-items:center; gap:14px; margin-top:28px; flex-wrap:wrap}
+  button.go{
+    background:var(--accent); color:var(--accent-ink); border:0; border-radius:4px;
+    padding:13px 24px; font:600 1rem "Inter",sans-serif; cursor:pointer;
+  }
+  button.go:hover{filter:brightness(1.07)}
+  button.quiet{
+    background:transparent; color:var(--ink); border:0; padding:13px 0; cursor:pointer;
+    font:500 1rem "Inter",sans-serif; text-decoration:underline; text-underline-offset:3px;
+  }
+  button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+
+  /* results */
+  .res-bucket{margin:0 0 38px}
+  .res-bucket h2{border-bottom:2px solid var(--accent); padding-bottom:8px; margin-bottom:18px}
+  .res-item{margin:0 0 18px; cursor:pointer; border-radius:4px; padding:10px 12px; margin-left:-12px; margin-right:-12px}
+  .res-item:hover{background:var(--soft)}
+  .res-item .rq{font-weight:600; font-size:.98rem; margin-bottom:4px}
+  .res-item .ra{white-space:pre-wrap; color:#e7e5de}
+  .res-item .ra.empty{color:var(--muted); font-style:italic}
+  .res-item .edit{color:var(--accent); font-size:.85rem; margin-left:8px; opacity:0}
+  .res-item:hover .edit,.res-item:focus .edit{opacity:1}
+  .toast{color:var(--accent); font-weight:600; font-size:.95rem}
+  footer{margin-top:50px; color:var(--muted); font-size:.85rem}
+  footer button{background:none; border:0; color:var(--muted); text-decoration:underline; cursor:pointer; font:inherit; padding:0}
+
+  @media (max-width:560px){
+    body{font-size:17px}
+    h1{font-size:2.2rem}
+    .setup h2{font-size:1.8rem}
+    .q{font-size:1.3rem}
+    .row{flex-direction:column-reverse; align-items:stretch}
+    button.go{width:100%}
+  }
+  /* v4 */
+  .setup.nodiv{border-bottom:0; padding-bottom:0; margin-bottom:18px}
+  .checks{display:grid; gap:10px; margin:0 0 10px}
+  .checks .chip{display:flex; align-items:center; gap:14px; text-align:left; width:100%; padding:15px 18px; font-size:1.05rem}
+  .checks .box{
+    flex:none; width:24px; height:24px; border:2px solid var(--muted); border-radius:4px; position:relative;
+  }
+  .checks .chip.on{background:var(--soft); color:var(--ink); border-color:var(--accent)}
+  .checks .chip.on .box{background:var(--accent); border-color:var(--accent)}
+  .checks .chip.on .box::after{
+    content:""; position:absolute; left:6px; top:1px; width:7px; height:13px;
+    border:solid var(--accent-ink); border-width:0 3px 3px 0; transform:rotate(45deg);
+  }
+  .itemnum{flex:none; width:28px; font-family:"Outfit",sans-serif; font-weight:700; color:var(--accent); font-size:1.2rem}
+  .chip{
+    background:var(--field); color:var(--ink); border:1.5px solid var(--line); border-radius:4px;
+    padding:11px 16px; font:500 1rem "Inter",sans-serif; cursor:pointer;
+  }
+  .chip:hover{border-color:var(--muted)}
+  .chip.on{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  .svc-title{font-size:2.4rem !important}
+  .tr{margin:24px 0 0; padding:18px 0 0; border-top:1px solid var(--line)}
+  .tr .lead{font-family:"Outfit",sans-serif; font-size:1.2rem; font-weight:600; margin:0 0 10px}
+  .tr .lead em{font-style:normal; color:var(--accent)}
+  .tr .ex{font-size:.92rem; color:var(--muted); margin:0 0 10px}
+  .tr .ex b{color:var(--ink); font-weight:600}
+  .none-note{color:var(--muted); font-size:.98rem; margin-top:18px}
+  .map-wrap{overflow-x:auto; margin:6px 0 30px}
+  table.map{border-collapse:collapse; width:100%; min-width:460px}
+  .map th,.map td{padding:12px 10px; border-bottom:1px solid var(--line); text-align:center}
+  .map th{font-family:"Outfit",sans-serif; font-weight:600; font-size:1rem; vertical-align:bottom}
+  .map th:first-child,.map td:first-child{text-align:left; padding-left:0}
+  .map td:first-child{font-weight:500}
+  .map .dot{display:inline-block; width:22px; height:22px; border-radius:4px; background:var(--accent)}
+  .map .nodot{display:inline-block; width:22px; height:22px; border-radius:4px; border:1.5px solid var(--line)}
+  .map tr.line td:first-child::after{content:"Line item"; margin-left:10px; font-size:.78rem; font-weight:600; color:var(--accent-ink); background:#e8e6df; padding:2px 7px; border-radius:4px}
+  .map tfoot td{font-family:"Outfit",sans-serif; font-weight:600; border-bottom:0; color:var(--muted)}
+  .map tfoot td.zero{color:var(--accent)}
+  .map-note{margin:0 0 30px}
+  .map-note p{margin:0 0 10px}
+  .discuss{background:var(--soft); border-left:4px solid var(--accent); border-radius:4px; padding:18px 22px; margin:0 0 10px}
+  .discuss h3{font-size:1.25rem; font-weight:600; margin:0 0 10px}
+  .discuss ol{margin:0; padding-left:20px}
+  .discuss li{margin:0 0 8px}
+  .res-svc{margin:0 0 30px}
+  .res-svc h2{font-size:1.4rem; border-bottom:2px solid var(--accent); padding-bottom:6px; margin-bottom:12px}
+  .res-svc .ra.stmt{margin-bottom:10px}
+  .warn{color:var(--accent); font-size:.95rem; margin-top:10px; min-height:1.2em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs" id="crumbs" aria-label="Sections"></nav>
+  <div class="track" id="track" aria-hidden="true"></div>
+  <main id="app"></main>
+  <footer>Your answers are saved in this browser only. <button id="reset">Start over</button></footer>
+</div>
+<script>
+const NEEDS = [
+  { key: "productivity", name: "Increase productivity", short: "Productivity", verb: "increase productivity",
+    ex: { svc: "website", how: "pre-qualifying leads, so fewer bad-fit inquiries clog their calendar" } },
+  { key: "expenses", name: "Reduce operating expenses", short: "Expenses", verb: "reduce operating expenses",
+    ex: { svc: "maintenance plan", how: "catching problems before they turn into downtime and emergency fix bills" } },
+  { key: "competitive", name: "Make them more competitive", short: "Competitive", verb: "become more competitive",
+    ex: { svc: "brand work", how: "making them look like they belong in the tier they want to play in" } }
+];
+
+const KEY = "hierarchy-of-needs-v4";
+let S = { services: [], t: {} };
+try { const raw = JSON.parse(localStorage.getItem(KEY) || "null"); if (raw && Array.isArray(raw.services)) S = raw; } catch (e) {}
+if (!S.t) S.t = {};
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+const uid = () => Math.random().toString(36).slice(2, 9);
+while (S.services.length < 3) S.services.push({ id: uid(), name: "" });
+S.services = S.services.slice(0, 3);
+
+const named = () => S.services.filter(s => s.name.trim());
+const allNamed = () => S.services.every(s => s.name.trim());
+const tr = id => (S.t[id] = S.t[id] || { sel: [], how: {} });
+
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+
+function screens(){
+  return [{ id: "intro" }, { id: "how" }, { id: "services" },
+    ...named().map((s, n) => ({ id: "svc-" + s.id, svc: s, n })),
+    { id: "map" }, { id: "results" }];
+}
+function currentIndex(L){ const i = L.findIndex(s => s.id === location.hash.slice(1)); return i < 0 ? 0 : i; }
+function go(id, focusId){
+  if (location.hash.slice(1) === id) render(); else location.hash = id;
+  window.scrollTo(0, 0);
+  if (focusId) setTimeout(() => { const el = document.getElementById(focusId); if (el) el.focus(); }, 40);
+}
+
+function renderNav(L, i){
+  const cur = L[i], first = named()[0];
+  const items = [
+    { label: "Intro", id: "intro", on: i <= 1 },
+    { label: "Services", id: "services", on: cur.id === "services" },
+    { label: "Translate", id: first ? "svc-" + first.id : "services", on: !!cur.svc },
+    { label: "Map", id: "map", on: cur.id === "map" },
+    { label: "Results", id: "results", on: cur.id === "results" }
+  ];
+  document.getElementById("crumbs").innerHTML = items.map(it =>
+    `<button class="${it.on ? "on" : ""}" data-id="${it.id}" ${it.on ? 'aria-current="step"' : ""}>${it.label}</button>`).join("");
+  document.querySelectorAll("#crumbs button").forEach(b => b.onclick = () => go(b.dataset.id));
+  document.getElementById("track").innerHTML = L.map((s, si) => `<span class="${si <= i ? "done" : ""}"></span>`).join("");
+}
+
+function navRow(i, nextLabel){
+  return `<div class="row">
+    ${i > 0 ? `<button class="quiet" id="back">Back</button>` : "<span></span>"}
+    <button class="go" id="next">${nextLabel}</button>
+  </div>`;
+}
+function wireNav(L, i, guard){
+  const back = document.getElementById("back"), next = document.getElementById("next");
+  if (back) back.onclick = () => go(L[i - 1].id);
+  if (next) next.onclick = () => { if (guard && !guard()) return; const L2 = screens(); go(L2[Math.min(L2.length - 1, L2.findIndex(s => s.id === L[i].id) + 1)].id); };
+}
+
+/* ---------- intro ---------- */
+function renderIntro(L, i){
+  app.innerHTML = `
+    <h1>The Business Hierarchy of Needs</h1>
+    <p class="punch">Your clients don't actually want a website. Or a video, a brand refresh, a content strategy, or a maintenance plan.</p>
+    <p>Strip away the deliverables and every business leader cares about three things. They'll say yes to anything that:</p>
+    <ul class="needs">
+      <li><strong>Increases productivity</strong><span>Getting the right work done by the right people, faster.</span></li>
+      <li><strong>Reduces operating expenses</strong><span>Cutting the right costs to create room to grow.</span></li>
+      <li><strong>Makes them more competitive</strong><span>Standing out in a crowded market.</span></li>
+    </ul>
+    <p>If you can't connect your work to at least one of these, you're asking them to buy a line item. If you can, you're offering them something they already want.</p>
+    ${navRow(i, "How it works")}`;
+  wireNav(L, i);
+}
+
+function renderHow(L, i){
+  app.innerHTML = `
+    <h1>How it works</h1>
+    <p>You're going to take everything you sell and translate it into what your clients actually care about.</p>
+    <ol class="steps">
+      <li><strong>Name what you sell</strong><span>Your three main services or products.</span></li>
+      <li><strong>Put each one on trial</strong><span>A client looks at it and asks, “So what?” Which of the three needs does it hit, and how? Say it in their language, not yours.</span></li>
+      <li><strong>See your map</strong><span>All your services against all three needs. Where you're strong, where you're empty, and what's just a line item.</span></li>
+    </ol>
+    <p>Write down the first thing that comes to mind. It doesn't need to sound good yet.</p>
+    <p class="muted">Takes about 15–20 minutes. You'll finish with outcome-focused copy for each of them.</p>
+    ${navRow(i, "Let's go")}`;
+  wireNav(L, i);
+}
+
+/* ---------- services (fixed 3) ---------- */
+function renderServices(L, i){
+  app.innerHTML = `
+    <div class="setup">
+      <div class="num">Step 1</div>
+      <h2>What do you sell?</h2>
+      <p>Name your three main services or products. Use the names you'd put on an invoice.</p>
+    </div>
+    <div class="example"><b>Example</b><p>Website design, maintenance plans, brand identity.</p></div>
+    <div class="items">
+      ${S.services.map((sv, n) => `<div class="item"><span class="itemnum">${n + 1}</span>
+        <input type="text" id="svc-in-${n}" data-n="${n}" value="${esc(sv.name)}" aria-label="Service ${n + 1}"></div>`).join("")}
+    </div>
+    <div class="warn" id="warn" role="status"></div>
+    ${navRow(i, "Put them on trial")}`;
+  app.querySelectorAll(".item input").forEach(inp => {
+    inp.oninput = () => { S.services[+inp.dataset.n].name = inp.value; save(); document.getElementById("warn").textContent = ""; };
+    inp.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); const nx = document.getElementById("svc-in-" + (+inp.dataset.n + 1)); if (nx) nx.focus(); else document.getElementById("next").click(); } };
+  });
+  wireNav(L, i, () => {
+    if (allNamed()) return true;
+    document.getElementById("warn").textContent = "Name all three to keep going.";
+    return false;
+  });
+}
+
+/* ---------- trial ---------- */
+function stmt(svc, needKey){
+  const h = (tr(svc.id).how[needKey] || "").trim();
+  const need = NEEDS.find(n => n.key === needKey);
+  return h ? `Our ${svc.name.trim()} helps clients ${need.verb} by ${h.replace(/\.$/, "")}.` : "";
+}
+
+function renderTrial(L, i, s){
+  const svc = s.svc, t = tr(svc.id), total = named().length;
+  const last = s.n === total - 1;
+  app.innerHTML = `
+    <div class="setup nodiv">
+      <div class="num">Service ${s.n + 1} of ${total}</div>
+      <h2 class="svc-title">${esc(svc.name)}</h2>
+      <p>A client looks at this and asks, “So what?” Which needs does it actually hit?</p>
+    </div>
+    <div class="checks" role="group" aria-label="Which needs does it hit?">
+      ${NEEDS.map(n => `<button class="chip ${t.sel.includes(n.key) ? "on" : ""}" role="checkbox" aria-checked="${t.sel.includes(n.key)}" data-k="${n.key}"><span class="box" aria-hidden="true"></span>${n.name}</button>`).join("")}
+    </div>
+    <p class="hint">Pick as many as are honestly true. If none are, leave them all off. That's worth knowing.</p>
+    <div id="trs"></div>
+    ${navRow(i, last ? "See your map" : "Next service")}`;
+
+  const drawTr = () => {
+    const box = document.getElementById("trs");
+    if (!t.sel.length) { box.innerHTML = ""; return; }
+    box.innerHTML = NEEDS.filter(n => t.sel.includes(n.key)).map(n => `
+      <div class="tr">
+        <p class="lead">Our ${esc(svc.name)} helps clients <em>${n.verb}</em> by…</p>
+        <p class="ex"><b>Example:</b> Our ${esc(n.ex.svc)} helps clients ${n.verb} by ${esc(n.ex.how)}.</p>
+        <textarea class="small" id="how-${n.key}" data-k="${n.key}" aria-label="How ${esc(svc.name)} helps clients ${n.verb}">${esc(t.how[n.key] || "")}</textarea>
+      </div>`).join("");
+    box.querySelectorAll("textarea").forEach(ta => ta.oninput = () => { t.how[ta.dataset.k] = ta.value; save(); });
+  };
+  app.querySelectorAll(".chip").forEach(c => c.onclick = () => {
+    const k = c.dataset.k, on = !t.sel.includes(k);
+    t.sel = on ? [...t.sel, k] : t.sel.filter(x => x !== k);
+    t.sel.sort((a, b) => NEEDS.findIndex(n => n.key === a) - NEEDS.findIndex(n => n.key === b));
+    c.classList.toggle("on", on); c.setAttribute("aria-checked", on);
+    save(); drawTr();
+    if (on) { const f = document.getElementById("how-" + k); if (f) f.focus(); }
+  });
+  drawTr(); wireNav(L, i);
+}
+
+/* ---------- map ---------- */
+function renderMap(L, i){
+  const list = named();
+  const counts = NEEDS.map(n => list.filter(s => tr(s.id).sel.includes(n.key)).length);
+  const lines = list.filter(s => !tr(s.id).sel.length);
+  const maxI = counts.indexOf(Math.max(...counts));
+  const empties = NEEDS.filter((n, k) => counts[k] === 0);
+  const notes = [];
+  if (list.length && Math.max(...counts) > 0) notes.push(`Most of your work lands in <strong>${NEEDS[maxI].short.toLowerCase()}</strong>. That's probably what clients already know you for.`);
+  if (empties.length) notes.push(`Nothing you sell hits <strong>${empties.map(n => n.short.toLowerCase()).join("</strong> or <strong>")}</strong>. Opportunity, or not your lane?`);
+  if (lines.length) notes.push(`${lines.length === 1 ? "One service" : lines.length + " services"} couldn't answer “so what?”: <strong>${lines.map(s => esc(s.name)).join(", ")}</strong>.`);
+  app.innerHTML = `
+    <h1>Your map</h1>
+    <p class="muted">Everything you sell, against everything your clients care about.</p>
+    <div class="map-wrap">
+      <table class="map">
+        <thead><tr><th scope="col">Service</th>${NEEDS.map(n => `<th scope="col">${n.short}</th>`).join("")}</tr></thead>
+        <tbody>
+          ${list.map(s => `<tr class="${tr(s.id).sel.length ? "" : "line"}"><td>${esc(s.name)}</td>${NEEDS.map(n =>
+            `<td>${tr(s.id).sel.includes(n.key) ? `<span class="dot" aria-label="Yes"></span>` : `<span class="nodot" aria-label="No"></span>`}</td>`).join("")}</tr>`).join("")}
+        </tbody>
+        <tfoot><tr><td>Total</td>${counts.map(c => `<td class="${c ? "" : "zero"}">${c}</td>`).join("")}</tr></tfoot>
+      </table>
+    </div>
+    ${notes.length ? `<div class="map-note">${notes.map(n => `<p>${n}</p>`).join("")}</div>` : ""}
+    <div class="discuss">
+      <ol>
+        <li>Does my website and marketing lead with the need I'm strongest in, or with my deliverables?</li>
+        <li>Is my weakest column a gap I should fill, or a lane I'm happy to leave to someone else?</li>
+        <li>If a service couldn't answer “so what?”, should I reframe it, bundle it into something bigger, or stop selling it?</li>
+      </ol>
+    </div>
+    ${navRow(i, "See my results")}`;
+  wireNav(L, i);
+}
+
+/* ---------- results ---------- */
+function buildText(){
+  const L = ["THE BUSINESS HIERARCHY OF NEEDS", "Completed " + new Date().toLocaleDateString(), ""];
+  named().forEach(s => {
+    L.push("== " + s.name.trim().toUpperCase() + " ==");
+    const sel = tr(s.id).sel;
+    if (!sel.length) L.push("Line item: didn't connect to a need.");
+    sel.forEach(k => L.push(stmt(s, k) || `${NEEDS.find(n => n.key === k).name}: (not written yet)`));
+    L.push("");
+  });
+  L.push("== MAP ==");
+  NEEDS.forEach(n => L.push(`${n.short}: ${named().filter(s => tr(s.id).sel.includes(n.key)).map(s => s.name.trim()).join(", ") || "(nothing)"}`));
+  L.push("", "== QUESTIONS TO ASK MYSELF ==",
+    "Does my website and marketing lead with the need I'm strongest in, or with my deliverables?", "", "",
+    "Is my weakest column a gap I should fill, or a lane I'm happy to leave to someone else?", "", "",
+    "If a service couldn't answer \u201cso what?\u201d, should I reframe it, bundle it into something bigger, or stop selling it?", "", "");
+  return L.join("\n");
+}
+
+function renderResults(L, i){
+  app.innerHTML = `
+    <h1>Your results</h1>
+    <p class="muted">Every service, translated into what your clients care about. Use these on service pages, in proposals, or the next time someone asks what you do. Click anything to edit it.</p>
+    ${named().map(s => {
+      const sel = tr(s.id).sel;
+      return `<section class="res-svc">
+        <h2>${esc(s.name)}</h2>
+        ${sel.length ? sel.map(k => {
+          const t = stmt(s, k);
+          return `<div class="res-item" tabindex="0" data-go="svc-${s.id}" data-f="how-${k}">
+            <div class="rq">${NEEDS.find(n => n.key === k).name}<span class="edit">Edit</span></div>
+            <div class="ra stmt ${t ? "" : "empty"}">${t ? esc(t) : "Not written yet"}</div>
+          </div>`;
+        }).join("") : `<div class="res-item" tabindex="0" data-go="svc-${s.id}"><div class="ra empty">Line item: didn't connect to a need.</div></div>`}
+      </section>`;
+    }).join("")}
+    <div class="row">
+      <button class="quiet" id="back">Back</button>
+      <span class="copyrow"><span class="toast" id="toast" role="status"></span><button class="go" id="copy">Copy results</button></span>
+    </div>`;
+  document.getElementById("back").onclick = () => go(L[i - 1].id);
+  app.querySelectorAll(".res-item").forEach(el => {
+    const open = () => go(el.dataset.go, el.dataset.f || null);
+    el.onclick = open;
+    el.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } };
+  });
+  document.getElementById("copy").onclick = async () => {
+    const text = buildText(), toast = document.getElementById("toast");
+    try { await navigator.clipboard.writeText(text); toast.textContent = "Copied"; }
+    catch (e) {
+      const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta);
+      ta.select(); try { document.execCommand("copy"); toast.textContent = "Copied"; } catch (e2) { toast.textContent = "Select and copy manually"; }
+      ta.remove();
+    }
+    setTimeout(() => { toast.textContent = ""; }, 2500);
+  };
+}
+
+function render(){
+  const L = screens(), i = currentIndex(L), s = L[i];
+  renderNav(L, i);
+  if (s.id === "intro") renderIntro(L, i);
+  else if (s.id === "how") renderHow(L, i);
+  else if (s.id === "services") renderServices(L, i);
+  else if (s.svc) renderTrial(L, i, s);
+  else if (s.id === "map") renderMap(L, i);
+  else renderResults(L, i);
+}
+
+document.getElementById("reset").onclick = () => {
+  if (!confirm("Clear all your answers and start over?")) return;
+  S = { services: [{ id: uid(), name: "" }, { id: uid(), name: "" }, { id: uid(), name: "" }], t: {} };
+  save(); go("intro");
+};
+window.addEventListener("hashchange", render);
+render();
+</script>
+</body>
+</html>
