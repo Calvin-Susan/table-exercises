@@ -38,6 +38,8 @@
   }
   .card:hover{border-color:var(--accent)}
   .card:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+  .tags{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px}
+  .tag{font-size:.75rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; padding:2px 8px; border:1px solid var(--muted); color:var(--muted); border-radius:4px}
   .card h2{font-size:1.6rem; line-height:1.2; font-weight:700; margin:0 0 8px}
   .card p{margin:0 0 14px; color:#e7e5de}
   .meta{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; font-size:.92rem; color:var(--muted)}
@@ -69,6 +71,7 @@ const EXERCISES = [
   {
     path: "two-futures/",
     title: "Two Futures",
+    tags: ["Strategy"],
     blurb: "Identify the most important areas you should be focused on to serve the “big picture.”",
     storage: "two-futures-v1",
     hasAnswers: d => [...(d.answers?.worst || []), ...(d.answers?.best || [])].some(filled)
@@ -76,6 +79,7 @@ const EXERCISES = [
   {
     path: "client-fears/",
     title: "Overcoming Objections",
+    tags: ["Sales"],
     blurb: "Name your prospects’ biggest fears and objections to help you overcome them.",
     storage: "client-fears-v1",
     hasAnswers: d => (d.fears || []).some(f => filled(f.text))
@@ -83,6 +87,7 @@ const EXERCISES = [
   {
     path: "business-hierarchy-of-needs/",
     title: "The Business Hierarchy of Needs",
+    tags: ["Marketing", "Sales"],
     blurb: "Translate everything you sell into the three things every business leader actually buys: productivity, lower costs, and a competitive edge.",
     storage: "hierarchy-of-needs-v4",
     hasAnswers: d => (d.services || []).some(s => filled(s.name))
@@ -99,6 +104,7 @@ function started(x){
 document.getElementById("list").innerHTML = EXERCISES.map(x => {
   const inProgress = started(x);
   return `<li><a class="card" href="${esc(x.path)}">
+    <div class="tags">${(x.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>
     <h2>${esc(x.title)}</h2>
     <p>${esc(x.blurb)}</p>
     <div class="meta">
