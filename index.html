@@ -69,16 +69,14 @@ const EXERCISES = [
   {
     path: "two-futures/",
     title: "Two Futures",
-    blurb: "Picture your business a year from now, first in the worst case, then the best. Line the answers up side by side and look at the gap between them.",
-    meta: "Host-led · Passcodes from the host",
+    blurb: "Identify the most important areas you should be focused on to serve the “big picture.”",
     storage: "two-futures-v1",
     hasAnswers: d => [...(d.answers?.worst || []), ...(d.answers?.best || [])].some(filled)
   },
   {
     path: "client-fears/",
-    title: "What Are Your Clients Afraid Of?",
-    blurb: "Name the worries your clients bring to the table before they hire you, and write down how you take each one off the table.",
-    meta: "Self-paced · About 10 minutes, plus a bonus step",
+    title: "Overcoming Objections",
+    blurb: "Name your prospects’ biggest fears and objections to help you overcome them.",
     storage: "client-fears-v1",
     hasAnswers: d => (d.fears || []).some(f => filled(f.text))
   },
@@ -86,7 +84,6 @@ const EXERCISES = [
     path: "business-hierarchy-of-needs/",
     title: "The Business Hierarchy of Needs",
     blurb: "Translate everything you sell into the three things every business leader actually buys: productivity, lower costs, and a competitive edge.",
-    meta: "Self-paced · 15–20 minutes",
     storage: "hierarchy-of-needs-v4",
     hasAnswers: d => (d.services || []).some(s => filled(s.name))
   }
@@ -106,7 +103,6 @@ document.getElementById("list").innerHTML = EXERCISES.map(x => {
     <p>${esc(x.blurb)}</p>
     <div class="meta">
       ${inProgress ? `<span class="badge">In progress</span>` : ""}
-      <span>${esc(x.meta)}</span>
       <span class="go">${inProgress ? "Pick up where you left off →" : "Start →"}</span>
     </div>
   </a></li>`;
