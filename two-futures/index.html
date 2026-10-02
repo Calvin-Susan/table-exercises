@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Two Futures</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#1A1A18; --ink:#ffffff; --muted:#a8a69f; --line:#3a3935;
+    --field:#232320; --accent:#fec200; --accent-ink:#1A1A18; --soft:#26261f;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px)}
+  *,*::before,*::after{box-sizing:inherit}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Inter",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:20px; line-height:1.55;
+    min-height:100%;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:56px 20px 80px}
+  h1,h2,.setup h2{font-family:"Outfit","Inter",sans-serif}
+  h1{font-size:2.9rem; line-height:1.1; font-weight:700; letter-spacing:-.02em; margin:0 0 16px}
+  h2{font-size:1.9rem; line-height:1.2; font-weight:600; letter-spacing:-.015em; margin:0 0 20px}
+  p{margin:0 0 14px; max-width:60ch}
+  .muted{color:var(--muted)}
+  .track{display:flex; gap:6px; margin-bottom:36px}
+  .track span{flex:1; height:4px; border-radius:0; background:var(--line)}
+  .track span.done{background:var(--accent)}
+  .crumbs{display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; margin-bottom:28px; font-size:.95rem}
+  .crumb{background:transparent; color:var(--muted); padding:4px 2px; border-radius:0; font-weight:500; border-bottom:2px solid transparent}
+  .crumb:hover:not([disabled]){color:var(--ink)}
+  .crumb.current{color:var(--accent); border-bottom-color:var(--accent); font-weight:600}
+  .crumb[disabled]{opacity:.4; cursor:default}
+  .crumbs .sep{color:var(--line)}
+  .edit-answer{display:block; width:100%; text-align:left; background:transparent; color:var(--ink); padding:12px 14px; margin:0 -14px 14px; width:calc(100% + 28px); border-radius:4px; font-weight:400; position:relative; cursor:pointer}
+  .edit-answer:hover{background:var(--soft)}
+  .edit-answer .edit-hint{position:absolute; top:12px; right:14px; font-size:.85rem; color:var(--accent); font-weight:600; opacity:0}
+  .edit-answer:hover .edit-hint, .edit-answer:focus-visible .edit-hint{opacity:1}
+  .review .edit-answer .a{margin-bottom:0}
+  .pair .edit-answer{margin:0; width:100%; padding:12px 14px}
+  .stop{display:flex; gap:14px; align-items:center; background:var(--accent); color:var(--accent-ink); padding:16px 18px; border-radius:4px; margin-bottom:26px; font-size:1.05rem}
+  .stop-mark{font-size:1.6rem; line-height:1}
+  .gate{margin-top:22px; border:1.5px dashed var(--line); border-radius:4px; padding:18px}
+  .gate label{display:block; margin-bottom:12px; font-weight:500}
+  .gate-row{display:flex; gap:10px; flex-wrap:wrap}
+  .gate input{flex:1; min-width:160px; font:inherit; color:var(--ink); background:var(--field); border:1.5px solid var(--line); border-radius:4px; padding:12px 14px}
+  .gate input:focus{outline:2px solid var(--accent); outline-offset:2px; border-color:var(--accent)}
+  .gate-err{margin-top:10px; color:var(--accent); font-weight:600; font-size:.95rem}
+  button.secondary{background:transparent; color:var(--ink); border:1.5px solid var(--line)}
+  button.secondary:hover{border-color:var(--accent)}
+  .stage{font-size:1rem; color:var(--muted); margin-bottom:10px}
+  .setup{margin:0 0 30px; padding-bottom:26px; border-bottom:2px solid var(--accent)}
+  .setup h2{font-size:2.3rem; line-height:1.15; margin:0 0 14px; font-weight:700}
+  .setup p{font-size:1.15rem; color:var(--ink); max-width:56ch}
+  .bubble{
+    background:var(--soft); border-radius:12px 12px 12px 4px;
+    padding:20px 22px; margin-bottom:22px; font-size:1.3rem; line-height:1.45;
+  }
+  .bubble small{display:block; margin-top:8px; font-size:1rem; color:var(--muted)}
+  textarea{
+    width:100%; min-height:190px; resize:vertical; font:inherit; color:var(--ink);
+    background:var(--field); border:1.5px solid var(--line); border-radius:4px; padding:14px 16px;
+  }
+  textarea:focus{outline:2px solid var(--accent); outline-offset:2px; border-color:var(--accent)}
+  .row{display:flex; gap:12px; align-items:center; margin-top:18px; flex-wrap:wrap}
+  button{
+    font:inherit; font-weight:600; border:0; border-radius:4px; padding:14px 26px; cursor:pointer;
+    background:var(--accent); color:var(--accent-ink);
+  }
+  button.quiet{background:transparent; color:var(--ink); text-decoration:underline; text-underline-offset:3px; font-weight:500; padding-left:8px; padding-right:8px}
+  button:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+  button[disabled]{opacity:.45; cursor:not-allowed}
+  .hint{font-size:.95rem; color:var(--muted); margin-left:auto}
+  .review{border-top:1px solid var(--line); padding-top:22px; margin-top:22px}
+  .review .q{font-weight:600; margin-bottom:6px}
+  .review .a{white-space:pre-wrap; margin-bottom:26px; padding-left:14px; border-left:3px solid var(--accent)}
+  .review .a.empty{color:var(--muted); font-style:italic; border-color:var(--line)}
+  .pairs{margin:28px 0 8px}
+  .pair{border-top:2px solid var(--accent); padding:22px 0 10px; display:grid; grid-template-columns:1fr 1fr; gap:24px; position:relative}
+  .pair-num{grid-column:1 / -1; font-family:"Outfit",sans-serif; font-weight:700; font-size:1.1rem; color:var(--accent); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px}
+  .tag{display:inline-block; font-size:.8rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; padding:3px 8px; border:1px solid var(--muted); color:var(--muted); border-radius:4px; margin-bottom:10px}
+  .tag.best{border-color:var(--accent); color:var(--accent)}
+  .pair .q{font-weight:600; font-size:1rem; margin-bottom:8px; color:var(--muted)}
+  .pair .a{white-space:pre-wrap; padding-left:0; border-left:0; margin-bottom:12px}
+  .pair .a.empty{color:var(--muted); font-style:italic}
+  @media (max-width:600px){ .pair{grid-template-columns:1fr} }
+  .compare ol{margin:8px 0 0; padding-left:22px}
+  .compare ol li{margin-bottom:8px}
+  .compare{background:var(--soft); border-radius:4px; border-left:4px solid var(--accent); padding:18px 20px; margin:28px 0}
+  .compare ul{margin:8px 0 0; padding-left:20px}
+  .compare li{margin-bottom:6px}
+  .toast{font-size:.95rem; color:var(--accent); font-weight:600}
+  .hidden{display:none}
+  @media (prefers-reduced-motion:no-preference){
+    .screen{animation:in .25s ease-out}
+    @keyframes in{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="app"></div>
+</div>
+
+<script>
+const SECTIONS = [
+  {
+    key: "worst",
+    label: "Worst case",
+    intro: "It's one year from now. Your business is in worse shape than it is today.",
+    scene: "Close your eyes for a second. It's a year from now. You're sitting where you're sitting right now, but the year didn't go the way you hoped. Revenue is down. The projects you wanted didn't come. Some of the clients you were counting on are gone. You're tired, and you're not sure what you would have done differently. You look back over the last twelve months and try to figure out where it went wrong.",
+    questions: [
+      { q: "What did you put off that ended up costing you the most?", hint: "" },
+      { q: "What did you keep tolerating that held you back the most?", hint: "A client, a process, a habit, a number you stopped looking at." },
+      { q: "Where did you waste too much time on something that didn't matter?", hint: "" },
+      { q: "What belief did you have that turned out to be wrong?", hint: "" }
+    ]
+  },
+  {
+    key: "best",
+    label: "Best case",
+    intro: "It's one year from now. It was your best year yet.",
+    scene: "Now flip it. It's a year from now and things went better than you thought they could. Your calendar has room in it. The work you're doing is the work you want to be doing, for people who value it. You're charging what you're worth and clients are saying yes. You're less stressed than you've been in a long time, and the business feels like it's finally running the way you always pictured it. You look back over the last twelve months and see the handful of moves that made the difference.",
+    questions: [
+      { q: "What decision did you finally make that resulted in the biggest improvement?", hint: "" },
+      { q: "What did you finally stop tolerating?", hint: "" },
+      { q: "How did you protect time for your most valuable work?", hint: "" },
+      { q: "What gamble did you take that had the biggest return?", hint: "It doesn't have to be big. Raising prices or firing a client counts." }
+    ]
+  }
+];
+
+const STORE = "two-futures-v1";
+let state = load() || { section: 0, step: 0, view: "intro", answers: { worst: [], best: [] }, returnTo: null };
+if (!("returnTo" in state)) state.returnTo = null;
+if (!state.unlocked) state.unlocked = {};
+// Passcodes the host reads out. Change these to whatever you like.
+const CODES = { start: "table", best: "flip", final: "gap" };
+const norm = v => String(v || "").trim().toLowerCase();
+
+function load(){ try{ const r = localStorage.getItem(STORE); return r ? JSON.parse(r) : null; }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
+
+const app = document.getElementById("app");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function go(view, section, step, returnTo, push){
+  if (view !== undefined) state.view = view;
+  if (section !== undefined) state.section = section;
+  if (step !== undefined) state.step = step;
+  state.returnTo = returnTo === undefined ? null : returnTo;
+  if (push !== false) { try { history.pushState({v: state.view, s: state.section, st: state.step, r: state.returnTo}, ""); } catch(e){} }
+  render(); window.scrollTo(0,0);
+}
+window.addEventListener("popstate", e => {
+  if (e.state) { state.view = e.state.v; state.section = e.state.s; state.step = e.state.st; state.returnTo = e.state.r; render(); }
+});
+try { history.replaceState({v: state.view, s: state.section, st: state.step, r: state.returnTo}, ""); } catch(e){}
+
+function gate(id, label, onOk){
+  return { html: `<form class="gate" id="${id}" autocomplete="off">
+      <label for="${id}-in">${label}</label>
+      <div class="gate-row"><input id="${id}-in" type="text" inputmode="text" autocapitalize="none" placeholder="Passcode" aria-describedby="${id}-err"><button type="submit">Continue →</button></div>
+      <div class="gate-err hidden" id="${id}-err">That's not it. Check with the host.</div>
+    </form>`,
+    wire(codeKey){
+      const f = document.getElementById(id), inp = document.getElementById(id + "-in"), err = document.getElementById(id + "-err");
+      f.onsubmit = e => { e.preventDefault();
+        if (norm(inp.value) === CODES[codeKey]) { state.unlocked[codeKey] = true; save(); onOk(); }
+        else { err.classList.remove("hidden"); inp.select(); }
+      };
+    } };
+}
+function sectionDone(key){ return SECTIONS.find(x => x.key === key).questions.every((_, i) => (state.answers[key][i] || "").trim()); }
+function sectionStarted(key){ return state.answers[key].some(a => (a || "").trim()); }
+
+function crumbs(){
+  const cur = state.view === "intro" ? "intro" : state.view === "final" ? "final" : SECTIONS[state.section].key;
+  const worstOpen = true, bestOpen = !!state.unlocked.best || sectionDone("worst"), finalOpen = !!state.unlocked.final;
+  const items = [
+    { key:"intro", label:"Start", open:true, act:() => go("intro", 0, 0) },
+    { key:"worst", label:"Worst case", open:worstOpen, act:() => go("setup", 0, 0) },
+    { key:"best", label:"Best case", open:bestOpen, act:() => go("setup", 1, 0) },
+    { key:"final", label:"Both futures", open:finalOpen, act:() => go("final") }
+  ];
+  const html = `<nav class="crumbs" aria-label="Progress">${items.map((it, i) =>
+    `${i ? '<span class="sep">›</span>' : ""}<button type="button" class="crumb ${it.key === cur ? "current" : ""}" data-i="${i}" ${it.open ? "" : "disabled"} ${it.key === cur ? 'aria-current="step"' : ""}>${it.label}</button>`).join("")}</nav>`;
+  return { html, items };
+}
+function wireCrumbs(items){
+  app.querySelectorAll(".crumb").forEach(b => b.onclick = () => items[+b.dataset.i].act());
+}
+
+function render(){
+  save();
+  if (state.view === "intro") return renderIntro();
+  if (state.view === "setup") return renderSetup();
+  if (state.view === "question") return renderQuestion();
+  if (state.view === "review") return renderReview();
+  if (state.view === "final") return renderFinal();
+}
+
+function track(sec, step){
+  const total = SECTIONS[sec].questions.length;
+  return `<div class="track">${Array.from({length: total}, (_, i) => `<span class="${i < step ? "done" : ""}"></span>`).join("")}</div>`;
+}
+
+function renderIntro(){
+  const c = crumbs();
+  app.innerHTML = `
+    <div class="screen">
+      ${c.html}
+      <h1>Two Futures</h1>
+      <p>A quick exercise in two parts. First you'll imagine a year from now where things went badly. Then a year where things went well.</p>
+      <p>Four short questions each. Write down the first thing that comes to mind. You don't have to make it sound good or go deep. You'll be sharing your answers with the group.</p>
+      <div class="row">
+        <button id="start">Start with the worst case →</button>
+        <button class="quiet" id="reset">Clear my answers</button>
+      </div>
+      <div class="row hidden" id="confirm"><span>Clear everything and re-lock the passcodes?</span><button class="secondary" id="yes">Yes, clear it</button><button class="quiet" id="no">Cancel</button></div>
+    </div>`;
+  wireCrumbs(c.items);
+  document.getElementById("start").onclick = () => go("setup", 0, 0);
+  const conf = document.getElementById("confirm");
+  document.getElementById("reset").onclick = () => conf.classList.remove("hidden");
+  document.getElementById("no").onclick = () => conf.classList.add("hidden");
+  document.getElementById("yes").onclick = () => {
+    try { localStorage.removeItem(STORE); } catch(e){}
+    state = { section:0, step:0, view:"intro", answers:{worst:[], best:[]}, returnTo:null, unlocked:{} };
+    render();
+  };
+}
+
+function renderSetup(){
+  const sec = SECTIONS[state.section];
+  const key = state.section === 0 ? "start" : "best";
+  const c = crumbs();
+  const g = gate("gate-" + key, "When the host gives you the passcode, enter it here to start answering.", () => go("question", state.section, 0));
+  app.innerHTML = `
+    <div class="screen">
+      ${c.html}
+      <div class="stage">${sec.label} · Setup</div>
+      <div class="setup"><h2>${esc(sec.intro)}</h2><p>${esc(sec.scene)}</p></div>
+      <p class="muted">Read along while the host sets the scene. Four questions are coming next.</p>
+      ${state.unlocked[key] ? `<div class="row"><button class="quiet" id="back">${state.section === 1 ? "← Worst case review" : "← Start from the beginning"}</button>${sectionStarted(sec.key) ? `<button class="secondary" id="rev">Review my answers</button>` : ""}<button id="go">${sectionStarted(sec.key) ? "Go to the questions →" : "Start the questions →"}</button></div>`
+        : `${g.html}<div class="row"><button class="quiet" id="back">${state.section === 1 ? "← Worst case review" : "← Start from the beginning"}</button></div>`}
+    </div>`;
+  wireCrumbs(c.items);
+  document.getElementById("back").onclick = () => state.section === 1 ? go("review", 0, 0) : go("intro", 0, 0);
+  if (!state.unlocked[key]) { g.wire(key); return; }
+  document.getElementById("go").onclick = () => go("question", state.section, 0);
+  const rev = document.getElementById("rev"); if (rev) rev.onclick = () => go("review", state.section, 0);
+}
+
+function renderQuestion(){
+  const sec = SECTIONS[state.section];
+  const i = state.step;
+  const item = sec.questions[i];
+  const val = state.answers[sec.key][i] || "";
+  const editing = !!state.returnTo;
+  const c = crumbs();
+  const backLabel = i > 0 ? `← Question ${i}` : "← Setup";
+  app.innerHTML = `
+    <div class="screen">
+      ${c.html}
+      <div class="stage">${sec.label} · Question ${i + 1} of ${sec.questions.length}</div>
+      ${track(state.section, i)}
+      <div class="bubble">${esc(item.q)}${item.hint ? `<small>${esc(item.hint)}</small>` : ""}</div>
+      <textarea id="ans" placeholder="Type your answer…" aria-label="${esc(item.q)}">${esc(val)}</textarea>
+      <div class="row">
+        ${editing ? `<button class="quiet" id="cancel">Cancel</button>` : `<button class="quiet" id="back">${backLabel}</button>`}
+        <span class="hint">Cmd/Ctrl + Enter to continue</span>
+        <button id="next">${editing ? "Save" : (i === sec.questions.length - 1 ? "Review my answers" : "Next question →")}</button>
+      </div>
+    </div>`;
+  wireCrumbs(c.items);
+  const ta = document.getElementById("ans");
+  ta.focus();
+  ta.addEventListener("input", () => { state.answers[sec.key][i] = ta.value; save(); });
+  ta.addEventListener("keydown", e => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") next(); });
+  function next(){
+    state.answers[sec.key][i] = ta.value;
+    if (editing) return go(state.returnTo, state.section, 0);
+    if (i < sec.questions.length - 1) go("question", state.section, i + 1); else go("review", state.section, 0);
+  }
+  document.getElementById("next").onclick = next;
+  const cancel = document.getElementById("cancel"); if (cancel) cancel.onclick = () => go(state.returnTo, state.section, 0);
+  const back = document.getElementById("back"); if (back) back.onclick = () => {
+    state.answers[sec.key][i] = ta.value;
+    if (i > 0) go("question", state.section, i - 1);
+    else go("setup", state.section, 0);
+  };
+}
+
+function reviewBlock(sec, returnTo){
+  return sec.questions.map((item, i) => {
+    const a = (state.answers[sec.key][i] || "").trim();
+    return `<button type="button" class="edit-answer" data-sec="${SECTIONS.indexOf(sec)}" data-i="${i}" data-r="${returnTo}" aria-label="Edit answer ${i+1}">
+      <div class="q">${esc(item.q)}</div><div class="a ${a ? "" : "empty"}">${a ? esc(a) : "No answer"}</div><span class="edit-hint">Edit</span></button>`;
+  }).join("");
+}
+function wireEdits(){
+  app.querySelectorAll(".edit-answer").forEach(b => b.onclick = () => go("question", +b.dataset.sec, +b.dataset.i, b.dataset.r));
+}
+
+function renderReview(){
+  const sec = SECTIONS[state.section];
+  const last = state.section === SECTIONS.length - 1;
+  const c = crumbs();
+  const g = gate("gate-final", "When the group is ready, the host will give you a passcode to see both futures.", () => go("final"));
+  app.innerHTML = `
+    <div class="screen">
+      ${c.html}
+      ${last ? `<div class="stop"><span class="stop-mark">✋</span><div><strong>Stop here.</strong> We'll discuss as a group before moving on.</div></div>` : `<div class="stop"><span class="stop-mark">✋</span><div><strong>Stop here.</strong> We'll discuss as a group before moving on. You can read ahead to the best-case setup, but the questions are locked until the host gives you the next passcode.</div></div>`}
+      <div class="stage">${sec.label} · Review</div>
+      <h2>${esc(sec.intro)}</h2>
+      <p class="muted">Click any answer to change it.</p>
+      <div class="review">${reviewBlock(sec, "review")}</div>
+      ${!last || state.unlocked.final ? `<div class="row">
+        <button class="quiet" id="back">${last ? "← Worst case review" : "← Start from the beginning"}</button>
+        <button id="go">${last ? "See both futures →" : "Next: the best case →"}</button>
+      </div>` : `${g.html}<div class="row"><button class="quiet" id="back">← Worst case review</button></div>`}
+    </div>`;
+  wireCrumbs(c.items); wireEdits();
+  document.getElementById("back").onclick = () => last ? go("review", 0, 0) : go("intro", 0, 0);
+  if (last && !state.unlocked.final) { g.wire("final"); return; }
+  document.getElementById("go").onclick = () => last ? go("final") : go("setup", 1, 0);
+}
+
+const DISCUSS = [
+  "Looking at your four pairs, which one is the biggest gap between the two futures?",
+  "What's one decision from your best case you can make this week?",
+  "What's one thing from your worst case you're going to stop doing, starting now?"
+];
+
+function ans(sec, i){ return (state.answers[sec][i] || "").trim(); }
+
+function buildText(){
+  const w = SECTIONS[0], b = SECTIONS[1];
+  const lines = ["TWO FUTURES", "Completed " + new Date().toLocaleDateString(), ""];
+  w.questions.forEach((item, i) => {
+    lines.push("--- Pair " + (i + 1) + " ---",
+      "WORST: " + item.q, ans("worst", i) || "(no answer)", "",
+      "BEST: " + b.questions[i].q, ans("best", i) || "(no answer)", "");
+  });
+  lines.push("=== DECISIONS ===", "");
+  DISCUSS.forEach(q => lines.push(q, "", "", ""));
+  return lines.join("\n");
+}
+
+function pairBlock(i){
+  const w = SECTIONS[0].questions[i], b = SECTIONS[1].questions[i];
+  const aw = ans("worst", i), ab = ans("best", i);
+  return `<div class="pair">
+    <div class="pair-num">Pair ${i + 1}</div>
+    <button type="button" class="pair-col edit-answer" data-sec="0" data-i="${i}" data-r="final"><div class="tag">Worst</div><div class="q">${esc(w.q)}</div><div class="a ${aw ? "" : "empty"}">${aw ? esc(aw) : "No answer"}</div><span class="edit-hint">Edit</span></button>
+    <button type="button" class="pair-col edit-answer" data-sec="1" data-i="${i}" data-r="final"><div class="tag best">Best</div><div class="q">${esc(b.q)}</div><div class="a ${ab ? "" : "empty"}">${ab ? esc(ab) : "No answer"}</div><span class="edit-hint">Edit</span></button>
+  </div>`;
+}
+
+function renderFinal(){
+  const c = crumbs();
+  app.innerHTML = `
+    <div class="screen">
+      ${c.html}
+      <h1>Both futures</h1>
+      <p class="muted">Each worst-case answer next to its best-case twin. Look at the gap between them. Click any answer to change it.</p>
+      <div class="row">
+        <button id="copy">Copy everything to clipboard</button>
+        <span class="toast hidden" id="toast">Copied</span>
+      </div>
+      <div class="pairs">${[0,1,2,3].map(pairBlock).join("")}</div>
+      <div class="compare">
+        <strong>For the group discussion</strong>
+        <ol>${DISCUSS.map(q => `<li>${esc(q)}</li>`).join("")}</ol>
+      </div>
+      <div class="row">
+        <button class="quiet" id="back">← Best case review</button>
+        <button id="copy2">Copy everything to clipboard</button>
+      </div>
+      <textarea id="fallback" class="hidden" aria-hidden="true"></textarea>
+    </div>`;
+  const doCopy = async () => {
+    const text = buildText();
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch(e){}
+    if (!ok) {
+      const fb = document.getElementById("fallback");
+      fb.classList.remove("hidden"); fb.value = text; fb.select();
+      try { ok = document.execCommand("copy"); } catch(e){}
+      fb.classList.add("hidden");
+    }
+    const t = document.getElementById("toast");
+    t.textContent = ok ? "Copied" : "Couldn't copy. Select the text and copy it manually.";
+    t.classList.remove("hidden");
+    window.scrollTo({top:0, behavior:"smooth"});
+  };
+  wireCrumbs(c.items); wireEdits();
+  document.getElementById("copy").onclick = doCopy;
+  document.getElementById("copy2").onclick = doCopy;
+  document.getElementById("back").onclick = () => go("review", 1, 0);
+}
+
+render();
+</script>
+</body>
+</html>
