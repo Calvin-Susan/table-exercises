@@ -98,10 +98,13 @@
     .screen{animation:in .25s ease-out}
     @keyframes in{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
   }
+  .home{display:inline-block; margin:0 0 18px; color:var(--muted); font-size:.9rem; text-decoration:none}
+  .home:hover{color:var(--accent)}
 </style>
 </head>
 <body>
 <div class="wrap">
+  <a class="home" href="../">← All exercises</a>
   <div id="app"></div>
 </div>
 

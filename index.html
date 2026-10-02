@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TABLE Exercises</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#1A1A18; --ink:#ffffff; --muted:#a8a69f; --line:#3a3935;
+    --field:#232320; --accent:#fec200; --accent-ink:#1A1A18; --soft:#26261f;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    color-scheme:dark;
+  }
+  *,*::before,*::after{box-sizing:inherit}
+  html{background:var(--bg)}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Inter",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:18px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:56px 22px 80px}
+  h1,h2{font-family:"Outfit","Inter",sans-serif; margin:0}
+  .kicker{font-family:"Outfit",sans-serif; color:var(--accent); font-weight:600; text-transform:uppercase; letter-spacing:.08em; font-size:.85rem; margin:0 0 8px}
+  h1{font-size:2.8rem; line-height:1.08; font-weight:700; letter-spacing:-0.01em; margin-bottom:18px}
+  p{margin:0 0 16px; max-width:60ch}
+  .muted{color:var(--muted)}
+
+  .list{list-style:none; padding:0; margin:36px 0 0; display:grid; gap:16px}
+  .card{
+    display:block; text-decoration:none; color:var(--ink);
+    background:var(--soft); border:1.5px solid var(--line); border-left:4px solid var(--accent);
+    border-radius:4px; padding:22px 24px;
+  }
+  .card:hover{border-color:var(--accent)}
+  .card:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+  .card h2{font-size:1.6rem; line-height:1.2; font-weight:700; margin:0 0 8px}
+  .card p{margin:0 0 14px; color:#e7e5de}
+  .meta{display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; font-size:.92rem; color:var(--muted)}
+  .badge{font-size:.78rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:3px 8px; border-radius:4px; background:var(--accent); color:var(--accent-ink)}
+  .go{margin-left:auto; color:var(--accent); font-weight:600}
+  footer{margin-top:50px; color:var(--muted); font-size:.85rem}
+
+  @media (max-width:560px){
+    .wrap{padding-top:36px}
+    h1{font-size:2.2rem}
+    .card{padding:18px 18px}
+    .go{margin-left:0; width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="kicker">TABLE</p>
+  <h1>Group exercises</h1>
+  <p>Pick the exercise your host is running. Each one keeps its own answers, so you can work through several without them getting mixed up.</p>
+  <ul class="list" id="list"></ul>
+  <footer>Your answers are saved in this browser only. Nothing is sent anywhere.</footer>
+</div>
+<script>
+// To add an exercise: put it in its own folder with an index.html, then add an entry here.
+// `storage` must match the localStorage key that exercise saves under.
+// `hasAnswers` looks at that saved data and says whether anyone has actually typed anything yet.
+const EXERCISES = [
+  {
+    path: "two-futures/",
+    title: "Two Futures",
+    blurb: "Picture your business a year from now, first in the worst case, then the best. Line the answers up side by side and look at the gap between them.",
+    meta: "Host-led · Passcodes from the host",
+    storage: "two-futures-v1",
+    hasAnswers: d => [...(d.answers?.worst || []), ...(d.answers?.best || [])].some(filled)
+  },
+  {
+    path: "client-fears/",
+    title: "What Are Your Clients Afraid Of?",
+    blurb: "Name the worries your clients bring to the table before they hire you, and write down how you take each one off the table.",
+    meta: "Self-paced · About 10 minutes, plus a bonus step",
+    storage: "client-fears-v1",
+    hasAnswers: d => (d.fears || []).some(f => filled(f.text))
+  },
+  {
+    path: "business-hierarchy-of-needs/",
+    title: "The Business Hierarchy of Needs",
+    blurb: "Translate everything you sell into the three things every business leader actually buys: productivity, lower costs, and a competitive edge.",
+    meta: "Self-paced · 15–20 minutes",
+    storage: "hierarchy-of-needs-v4",
+    hasAnswers: d => (d.services || []).some(s => filled(s.name))
+  }
+];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+function filled(v){ return typeof v === "string" && v.trim() !== ""; }
+function started(x){
+  try { const d = JSON.parse(localStorage.getItem(x.storage) || "null"); return !!d && x.hasAnswers(d); }
+  catch (e) { return false; }
+}
+
+document.getElementById("list").innerHTML = EXERCISES.map(x => {
+  const inProgress = started(x);
+  return `<li><a class="card" href="${esc(x.path)}">
+    <h2>${esc(x.title)}</h2>
+    <p>${esc(x.blurb)}</p>
+    <div class="meta">
+      ${inProgress ? `<span class="badge">In progress</span>` : ""}
+      <span>${esc(x.meta)}</span>
+      <span class="go">${inProgress ? "Pick up where you left off →" : "Start →"}</span>
+    </div>
+  </a></li>`;
+}).join("");
+</script>
+</body>
+</html>
