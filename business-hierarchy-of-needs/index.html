@@ -215,6 +215,8 @@
   .res-svc h2{font-size:1.4rem; border-bottom:2px solid var(--accent); padding-bottom:6px; margin-bottom:12px}
   .res-svc .ra.stmt{margin-bottom:10px}
   .warn{color:var(--accent); font-size:.95rem; margin-top:10px; min-height:1.2em}
+  .credit{background:var(--soft); border-left:4px solid var(--accent); border-radius:4px; padding:16px 20px; margin:0 0 28px}
+  .credit p{margin:0; font-size:1rem; color:#e7e5de; max-width:none}
   .home{display:inline-block; margin:0 0 18px; color:var(--muted); font-size:.9rem; text-decoration:none}
   .home:hover{color:var(--accent)}
 </style>
@@ -296,6 +298,7 @@ function wireNav(L, i, guard){
 function renderIntro(L, i){
   app.innerHTML = `
     <h1>The Business Hierarchy of Needs</h1>
+    <div class="credit"><p>This idea comes from <strong>Jim Martin</strong>, who first brought it to the group at <strong>TABLE #005</strong>.</p></div>
     <p class="punch">Your clients don't actually want a website. Or a video, a brand refresh, a content strategy, or a maintenance plan.</p>
     <p>Strip away the deliverables and every business leader cares about three things. They'll say yes to anything that:</p>
     <ul class="needs">
