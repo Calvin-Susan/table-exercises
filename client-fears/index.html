@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What Are Your Clients Afraid Of?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#1A1A18; --ink:#ffffff; --muted:#a8a69f; --line:#3a3935;
+    --field:#232320; --accent:#fec200; --accent-ink:#1A1A18; --soft:#26261f;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    color-scheme:dark;
+  }
+  *,*::before,*::after{box-sizing:inherit}
+  html{scroll-padding-top:env(safe-area-inset-top,0px); background:var(--bg)}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Inter",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:18px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:28px 22px 80px}
+  h1,h2,h3{font-family:"Outfit","Inter",sans-serif; margin:0}
+  h1{font-size:2.8rem; line-height:1.08; font-weight:700; letter-spacing:-0.01em; margin-bottom:22px}
+  h2{font-size:1.75rem; line-height:1.2; font-weight:600; margin-bottom:10px}
+  p{margin:0 0 16px; max-width:60ch}
+  .muted{color:var(--muted)}
+  a{color:var(--accent)}
+
+  /* top nav */
+  .crumbs{display:flex; flex-wrap:wrap; gap:6px 18px; margin:0 0 14px; font-size:.9rem}
+  .crumbs button{
+    background:none; border:0; padding:4px 0; font:inherit; color:var(--muted); cursor:pointer;
+    border-bottom:2px solid transparent;
+  }
+  .crumbs button:hover{color:var(--ink)}
+  .crumbs button.on{color:var(--ink); border-bottom-color:var(--accent)}
+  .track{display:flex; gap:4px; margin:0 0 40px}
+  .track span{flex:1; height:4px; background:var(--line)}
+  .track span.done{background:var(--accent)}
+
+  /* intro */
+  .needs{list-style:none; padding:0; margin:26px 0 28px; display:grid; gap:14px}
+  .needs li{border-left:4px solid var(--accent); padding:4px 0 4px 18px}
+  .needs strong{display:block; font-family:"Outfit",sans-serif; font-size:1.3rem; font-weight:600}
+  .needs span{color:var(--muted)}
+  .punch{font-size:1.2rem; font-weight:500; max-width:52ch}
+  .steps{list-style:none; counter-reset:s; padding:0; margin:24px 0 30px; display:grid; gap:18px}
+  .steps li{counter-increment:s; display:grid; grid-template-columns:44px 1fr; gap:4px 14px}
+  .steps li::before{
+    content:counter(s); grid-row:span 2; width:36px; height:36px; border-radius:4px;
+    background:var(--accent); color:var(--accent-ink); font-family:"Outfit",sans-serif;
+    font-weight:700; display:flex; align-items:center; justify-content:center;
+  }
+  .steps strong{font-family:"Outfit",sans-serif; font-size:1.15rem; font-weight:600}
+  .steps span{color:var(--muted)}
+
+  /* bucket setup */
+  .setup{margin:0 0 30px; padding-bottom:26px; border-bottom:2px solid var(--accent)}
+  .setup .num{color:var(--accent); font-family:"Outfit",sans-serif; font-weight:600; font-size:1rem; margin-bottom:6px}
+  .setup h2{font-size:2.2rem; line-height:1.12; font-weight:700; margin:0 0 12px}
+  .setup p{font-size:1.1rem; margin:0}
+
+  .q{font-family:"Outfit",sans-serif; font-size:1.45rem; line-height:1.3; font-weight:600; margin:0 0 6px}
+  .hint{color:var(--muted); margin:0 0 16px; font-size:1rem}
+  textarea{
+    width:100%; min-height:190px; resize:vertical; font:inherit; font-size:1rem; color:var(--ink);
+    background:var(--field); border:1.5px solid var(--line); border-radius:4px; padding:14px 16px;
+  }
+  textarea.small{min-height:110px}
+  textarea:focus{outline:none; border-color:var(--accent)}
+  textarea::placeholder{color:#6f6d66}
+
+  .example{
+    background:var(--soft); border-left:4px solid var(--accent); border-radius:4px;
+    padding:14px 18px; margin:0 0 18px; font-size:.98rem;
+  }
+  .example b{display:block; font-family:"Outfit",sans-serif; font-weight:600; color:var(--accent); margin-bottom:4px; font-size:.95rem}
+  .example p{margin:0; color:#e7e5de}
+
+  .check{margin:0 0 30px}
+  .check .q{font-size:1.2rem; margin-bottom:12px}
+
+  input[type=text]{
+    width:100%; font:inherit; font-size:1rem; color:var(--ink); background:var(--field);
+    border:1.5px solid var(--line); border-radius:4px; padding:12px 16px;
+  }
+  input[type=text]:focus{outline:none; border-color:var(--accent)}
+  input[type=text]::placeholder{color:#6f6d66}
+  .recap{border:1.5px dashed var(--line); border-radius:4px; padding:14px 18px; margin:0 0 30px; font-size:.95rem}
+  .recap b{display:block; font-family:"Outfit",sans-serif; font-weight:600; color:var(--muted); margin-bottom:4px}
+  .recap p{margin:0; white-space:pre-wrap; color:#e7e5de}
+  .choices{display:grid; gap:10px}
+  .choice{
+    text-align:left; background:var(--field); color:var(--ink); border:1.5px solid var(--line);
+    border-radius:4px; padding:14px 18px; cursor:pointer; font:inherit;
+  }
+  .choice strong{display:block; font-family:"Outfit",sans-serif; font-size:1.15rem; font-weight:600}
+  .choice span{display:block; color:var(--muted); font-size:.95rem}
+  .choice:hover{border-color:var(--muted)}
+  .choice.on{border-color:var(--accent); background:var(--soft); box-shadow:inset 4px 0 0 var(--accent)}
+  .res-bucket.position{background:var(--soft); border-radius:4px; padding:20px 24px 6px}
+  .copyrow{display:flex; align-items:center; gap:14px}
+  .hint em{color:var(--ink); font-style:normal; font-weight:500}
+
+  .items{display:grid; gap:8px; margin:0 0 10px}
+  .item{display:flex; gap:8px; align-items:center}
+  .item input{flex:1}
+  .rm{
+    flex:none; width:40px; height:46px; border:1.5px solid var(--line); background:transparent; color:var(--muted);
+    border-radius:4px; font-size:1.3rem; line-height:1; cursor:pointer;
+  }
+  .rm:hover:not(:disabled){color:var(--ink); border-color:var(--muted)}
+  .rm:disabled{opacity:.3; cursor:default}
+  button.add{
+    background:transparent; border:1.5px dashed var(--line); color:var(--ink); border-radius:4px;
+    padding:10px 16px; font:500 .95rem "Inter",sans-serif; cursor:pointer; width:100%; text-align:left;
+  }
+  button.add:hover{border-color:var(--accent); color:var(--accent)}
+  .builder{display:grid; gap:10px; margin-top:4px}
+  .builder .fixed{font-family:"Outfit",sans-serif; font-size:1.2rem; font-weight:600}
+  .builder .need{color:var(--accent)}
+  .preview{margin-top:20px}
+  .preview b{display:block; font-family:"Outfit",sans-serif; font-weight:600; color:var(--muted); font-size:.95rem; margin-bottom:6px}
+  .preview p{margin:0; font-family:"Outfit",sans-serif; font-size:1.35rem; line-height:1.35; font-weight:500; max-width:none}
+  .ra.stmt{font-family:"Outfit",sans-serif; font-size:1.15rem; line-height:1.4; color:var(--ink)}
+  .ra-list{margin:0; padding-left:20px; color:#e7e5de}
+  button.quiet.inline{padding:0; color:var(--accent)}
+  .choice{font-size:1rem}
+
+  /* buttons */
+  .row{display:flex; justify-content:space-between; align-items:center; gap:14px; margin-top:28px; flex-wrap:wrap}
+  button.go{
+    background:var(--accent); color:var(--accent-ink); border:0; border-radius:4px;
+    padding:13px 24px; font:600 1rem "Inter",sans-serif; cursor:pointer;
+  }
+  button.go:hover{filter:brightness(1.07)}
+  button.quiet{
+    background:transparent; color:var(--ink); border:0; padding:13px 0; cursor:pointer;
+    font:500 1rem "Inter",sans-serif; text-decoration:underline; text-underline-offset:3px;
+  }
+  button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+
+  /* results */
+  .res-bucket{margin:0 0 38px}
+  .res-bucket h2{border-bottom:2px solid var(--accent); padding-bottom:8px; margin-bottom:18px}
+  .res-item{margin:0 0 18px; cursor:pointer; border-radius:4px; padding:10px 12px; margin-left:-12px; margin-right:-12px}
+  .res-item:hover{background:var(--soft)}
+  .res-item .rq{font-weight:600; font-size:.98rem; margin-bottom:4px}
+  .res-item .ra{white-space:pre-wrap; color:#e7e5de}
+  .res-item .ra.empty{color:var(--muted); font-style:italic}
+  .res-item .edit{color:var(--accent); font-size:.85rem; margin-left:8px; opacity:0}
+  .res-item:hover .edit,.res-item:focus .edit{opacity:1}
+  .toast{color:var(--accent); font-weight:600; font-size:.95rem}
+  footer{margin-top:50px; color:var(--muted); font-size:.85rem}
+  footer button{background:none; border:0; color:var(--muted); text-decoration:underline; cursor:pointer; font:inherit; padding:0}
+
+  @media (max-width:560px){
+    body{font-size:17px}
+    h1{font-size:2.2rem}
+    .setup h2{font-size:1.8rem}
+    .q{font-size:1.3rem}
+    .row{flex-direction:column-reverse; align-items:stretch}
+    button.go{width:100%}
+  }
+  /* v4 */
+  .chips{display:flex; flex-wrap:wrap; gap:10px; margin:0 0 8px}
+  .chip{
+    background:var(--field); color:var(--ink); border:1.5px solid var(--line); border-radius:4px;
+    padding:11px 16px; font:500 1rem "Inter",sans-serif; cursor:pointer;
+  }
+  .chip:hover{border-color:var(--muted)}
+  .chip.on{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+  .svc-title{font-size:2.4rem !important}
+  .tr{margin:24px 0 0; padding:18px 0 0; border-top:1px solid var(--line)}
+  .tr .lead{font-family:"Outfit",sans-serif; font-size:1.2rem; font-weight:600; margin:0 0 10px}
+  .tr .lead em{font-style:normal; color:var(--accent)}
+  .tr .ex{font-size:.92rem; color:var(--muted); margin:0 0 10px}
+  .tr .ex b{color:var(--ink); font-weight:600}
+  .none-note{color:var(--muted); font-size:.98rem; margin-top:18px}
+  .map-wrap{overflow-x:auto; margin:6px 0 30px}
+  table.map{border-collapse:collapse; width:100%; min-width:460px}
+  .map th,.map td{padding:12px 10px; border-bottom:1px solid var(--line); text-align:center}
+  .map th{font-family:"Outfit",sans-serif; font-weight:600; font-size:1rem; vertical-align:bottom}
+  .map th:first-child,.map td:first-child{text-align:left; padding-left:0}
+  .map td:first-child{font-weight:500}
+  .map .dot{display:inline-block; width:22px; height:22px; border-radius:4px; background:var(--accent)}
+  .map .nodot{display:inline-block; width:22px; height:22px; border-radius:4px; border:1.5px solid var(--line)}
+  .map tr.line td:first-child::after{content:"Line item"; margin-left:10px; font-size:.78rem; font-weight:600; color:var(--accent-ink); background:#e8e6df; padding:2px 7px; border-radius:4px}
+  .map tfoot td{font-family:"Outfit",sans-serif; font-weight:600; border-bottom:0; color:var(--muted)}
+  .map tfoot td.zero{color:var(--accent)}
+  .map-note{margin:0 0 30px}
+  .map-note p{margin:0 0 10px}
+  .discuss{background:var(--soft); border-left:4px solid var(--accent); border-radius:4px; padding:18px 22px; margin:0 0 10px}
+  .discuss h3{font-size:1.25rem; font-weight:600; margin:0 0 10px}
+  .discuss ol{margin:0; padding-left:20px}
+  .discuss li{margin:0 0 8px}
+  .res-svc{margin:0 0 30px}
+  .res-svc h2{font-size:1.4rem; border-bottom:2px solid var(--accent); padding-bottom:6px; margin-bottom:12px}
+  .res-svc .ra.stmt{margin-bottom:10px}
+  .warn{color:var(--accent); font-size:.95rem; margin-top:10px; min-height:1.2em}
+
+  /* guarantees */
+  .twist{margin:46px 0 0; padding:30px 26px; border:2px solid var(--accent); border-radius:4px}
+  .twist h2{font-size:1.7rem; line-height:1.2; font-weight:700; margin:0 0 10px}
+  .twist p{color:var(--muted)}
+  .twist-k{font-family:"Outfit",sans-serif; color:var(--accent); font-weight:600; text-transform:uppercase; letter-spacing:.08em; font-size:.85rem; margin:0 0 8px}
+  .pull{margin:30px 0; padding:0 0 0 22px; border-left:4px solid var(--accent)}
+  .pull p{font-family:"Outfit",sans-serif; font-size:1.8rem; line-height:1.2; font-weight:700; margin:0 0 8px}
+  .pull cite{font-style:normal; color:var(--muted); font-size:.95rem}
+  h2.sub{margin:34px 0 0}
+  button.ghost{
+    background:transparent; color:var(--ink); border:1.5px solid var(--muted); border-radius:4px;
+    padding:12px 22px; font:600 1rem "Inter",sans-serif; cursor:pointer;
+  }
+  button.ghost:hover{border-color:var(--accent); color:var(--accent)}
+  .example b.inl{display:inline; color:var(--ink); margin:0 4px 0 0}
+  .res-item.static{cursor:default}
+  .res-item.static:hover{background:transparent}
+  .hint.tight{margin:-4px 0 8px; font-size:.92rem}
+  .builder textarea.small{min-height:90px}
+  .setup h2 + p{margin-top:4px}
+  [hidden]{display:none !important}
+  .credit{background:var(--soft); border-left:4px solid var(--accent); border-radius:4px; padding:16px 20px; margin:0 0 28px}
+  .credit p{margin:0; font-size:1rem; color:#e7e5de; max-width:none}
+  .stuck{margin:26px 0 0; border-top:1px solid var(--line); padding-top:14px}
+  .stuck summary{cursor:pointer; color:var(--muted); font-size:.95rem; font-weight:500}
+  .stuck summary:hover{color:var(--ink)}
+  .stuck p{margin:12px 0 0; padding:14px 18px; background:var(--soft); border-left:4px solid var(--accent); border-radius:4px; font-size:.95rem; color:#e7e5de; max-width:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="crumbs" id="crumbs" aria-label="Sections"></nav>
+  <div class="track" id="track" aria-hidden="true"></div>
+  <main id="app"></main>
+  <footer>Your answers are saved in this browser only. <button id="reset">Start over</button></footer>
+</div>
+<script>
+const KEY = "client-fears-v1";
+const uid = () => Math.random().toString(36).slice(2, 9);
+let S = null;
+try { S = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
+if (!S || !Array.isArray(S.fears)) S = { fears: [], resp: {}, promise: {}, cost: {}, unlocked: false };
+while (S.fears.length < 3) S.fears.push({ id: uid(), text: "" });
+S.fears = S.fears.slice(0, 5);
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+const MIN = 3, MAX = 5;
+const named = () => S.fears.filter(f => f.text.trim());
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+const clean = s => (s || "").trim().replace(/[.\s]+$/, "");
+const EX = {
+  fear: "What if I don't like the design?",
+  resp: "We provide unlimited proofs until you're happy.",
+  promise: "you'll love your design before we build a single page",
+  cost: "we'll keep revising at no charge, and if we still can't get it right, we'll refund your design deposit in full"
+};
+
+function screens(){
+  const L = [{ id: "intro" }, { id: "fears" }, { id: "responses" }, { id: "done" }];
+  if (S.unlocked) {
+    L.push({ id: "teach" });
+    named().forEach((f, n) => L.push({ id: "g-" + f.id, fear: f, n }));
+    L.push({ id: "results" });
+  }
+  return L;
+}
+function currentIndex(L){ const i = L.findIndex(s => s.id === location.hash.slice(1)); return i < 0 ? 0 : i; }
+function go(id, focusId){
+  if (location.hash.slice(1) === id) render(); else location.hash = id;
+  window.scrollTo(0, 0);
+  if (focusId) setTimeout(() => { const el = document.getElementById(focusId); if (el) el.focus(); }, 40);
+}
+function nextOf(L, i){ const L2 = screens(); return L2[Math.min(L2.length - 1, L2.findIndex(s => s.id === L[i].id) + 1)].id; }
+
+function renderNav(L, i){
+  const cur = L[i], first = named()[0];
+  const items = [
+    { label: "Intro", id: "intro", on: cur.id === "intro" },
+    { label: "Fears", id: "fears", on: cur.id === "fears" },
+    { label: "Responses", id: "responses", on: cur.id === "responses" || cur.id === "done" }
+  ];
+  if (S.unlocked) items.push(
+    { label: "Guarantees", id: "teach", on: cur.id === "teach" || !!cur.fear },
+    { label: "Results", id: "results", on: cur.id === "results" });
+  document.getElementById("crumbs").innerHTML = items.map(it =>
+    `<button class="${it.on ? "on" : ""}" data-id="${it.id}" ${it.on ? 'aria-current="step"' : ""}>${it.label}</button>`).join("");
+  document.querySelectorAll("#crumbs button").forEach(b => b.onclick = () => go(b.dataset.id));
+  document.getElementById("track").innerHTML = L.map((s, si) => `<span class="${si <= i ? "done" : ""}"></span>`).join("");
+}
+
+function navRow(i, nextLabel){
+  return `<div class="row">
+    ${i > 0 ? `<button class="quiet" id="back">Back</button>` : "<span></span>"}
+    ${nextLabel ? `<button class="go" id="next">${nextLabel}</button>` : ""}
+  </div>`;
+}
+function wireNav(L, i, guard){
+  const back = document.getElementById("back"), next = document.getElementById("next");
+  if (back) back.onclick = () => go(L[i - 1].id);
+  if (next) next.onclick = () => { if (guard && !guard()) return; go(nextOf(L, i)); };
+}
+function exampleBox(html){ return `<div class="example"><b>Example</b><p>${html}</p></div>`; }
+
+/* ---------- intro ---------- */
+function renderIntro(L, i){
+  app.innerHTML = `
+    <h1>What are your clients afraid of?</h1>
+    <p class="punch">Most prospects don't walk away because of price. They walk away because something feels risky.</p>
+    <p>Before anyone hires you, there's a quiet list of worries running in the back of their head. What if I hate the design? What if this goes way over budget? What if they disappear after launch?</p>
+    <p>Most of those fears never get said out loud. They just turn into “Let me think about it.”</p>
+    <p>In this exercise, you'll name the fears your clients bring to the table and write down how you handle each one.</p>
+    <p class="muted">Takes about 10 minutes. Your answers stay in your browser.</p>
+    ${navRow(i, "Let's go")}`;
+  wireNav(L, i);
+}
+
+/* ---------- fears ---------- */
+function renderFears(L, i){
+  app.innerHTML = `
+    <div class="setup">
+      <div class="num">Step 1</div>
+      <h2>Name the fears</h2>
+      <p>What worries your clients before they hire you, or while you're working together? Write them the way a client would say them.</p>
+    </div>
+    <p class="hint">Three to five. Start with the ones you hear most.</p>
+    ${exampleBox(esc(EX.fear))}
+    <div class="items" id="items"></div>
+    <button class="add" id="add">+ Add another</button>
+    <div class="warn" id="warn" role="status"></div>
+    ${navRow(i, "Next")}`;
+  const box = document.getElementById("items"), add = document.getElementById("add");
+  const draw = focusAt => {
+    box.innerHTML = S.fears.map((f, n) => `
+      <div class="item">
+        <input type="text" id="fear-${n}" data-n="${n}" value="${esc(f.text)}" placeholder="What if…" aria-label="Fear ${n + 1}">
+        <button class="rm" data-n="${n}" aria-label="Remove fear ${n + 1}" ${S.fears.length <= MIN ? "disabled" : ""}>×</button>
+      </div>`).join("");
+    add.hidden = S.fears.length >= MAX;
+    box.querySelectorAll("input").forEach(inp => {
+      inp.oninput = () => { S.fears[+inp.dataset.n].text = inp.value; save(); document.getElementById("warn").textContent = ""; };
+      inp.onkeydown = e => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        const n = +inp.dataset.n, nx = document.getElementById("fear-" + (n + 1));
+        if (nx) nx.focus();
+        else if (S.fears.length < MAX) { S.fears.push({ id: uid(), text: "" }); save(); draw(n + 1); }
+        else document.getElementById("next").click();
+      };
+    });
+    box.querySelectorAll(".rm").forEach(r => r.onclick = () => { S.fears.splice(+r.dataset.n, 1); save(); draw(); });
+    if (focusAt != null) { const el = document.getElementById("fear-" + focusAt); if (el) el.focus(); }
+  };
+  draw();
+  add.onclick = () => { if (S.fears.length < MAX) { S.fears.push({ id: uid(), text: "" }); save(); draw(S.fears.length - 1); } };
+  wireNav(L, i, () => {
+    if (named().length >= MIN) return true;
+    document.getElementById("warn").textContent = "Name at least three to keep going.";
+    return false;
+  });
+}
+
+/* ---------- responses ---------- */
+function renderResponses(L, i){
+  const list = named();
+  app.innerHTML = `
+    <div class="setup">
+      <div class="num">Step 2</div>
+      <h2>How do you handle them?</h2>
+      <p>For each fear, what do you already have in place to take it off the table? A process, a policy, a habit, something you say on every sales call.</p>
+    </div>
+    ${list.map((f, n) => `
+      <div class="check">
+        <p class="q">“${esc(f.text.trim())}”</p>
+        ${n === 0 ? exampleBox(`<b class="inl">${esc(EX.fear)}</b> ${esc(EX.resp)}`) : ""}
+        <textarea class="small" id="resp-${f.id}" data-id="${f.id}" aria-label="How you handle: ${esc(f.text)}">${esc(S.resp[f.id] || "")}</textarea>
+      </div>`).join("")}
+    ${navRow(i, "I'm done")}`;
+  app.querySelectorAll("textarea").forEach(t => t.oninput = () => { S.resp[t.dataset.id] = t.value; save(); });
+  wireNav(L, i);
+}
+
+/* ---------- done (the fake ending) ---------- */
+function respText(){
+  const L = ["WHAT ARE MY CLIENTS AFRAID OF?", ""];
+  named().forEach(f => L.push("FEAR: " + f.text.trim(), "HOW I HANDLE IT: " + ((S.resp[f.id] || "").trim() || "(no answer)"), ""));
+  return L.join("\n");
+}
+function renderDone(L, i){
+  app.innerHTML = `
+    <h1>Nice work.</h1>
+    <p class="muted">Here's every fear you named and how you handle it. That's a handy list on its own, for sales calls, your FAQ page, or proposals.</p>
+    ${named().map(f => `<div class="res-item static">
+      <div class="rq">${esc(f.text)}</div>
+      <div class="ra ${(S.resp[f.id] || "").trim() ? "" : "empty"}">${esc((S.resp[f.id] || "").trim() || "No answer yet")}</div>
+    </div>`).join("")}
+    <div class="row">
+      <button class="quiet" id="back">Back</button>
+      <span class="copyrow"><span class="toast" id="toast" role="status"></span><button class="ghost" id="copy">Copy my list</button></span>
+    </div>
+    <div class="twist">
+      <p class="twist-k">Hold on.</p>
+      <h2>You just wrote something a lot more valuable than an FAQ.</h2>
+      <p>There's one more step, and it's the one that matters most.</p>
+      <button class="go" id="reveal">Show me</button>
+    </div>`;
+  document.getElementById("back").onclick = () => go(L[i - 1].id);
+  wireCopy(respText);
+  document.getElementById("reveal").onclick = () => { S.unlocked = true; save(); go("teach"); };
+}
+
+/* ---------- teach ---------- */
+function renderTeach(L, i){
+  app.innerHTML = `
+    <p class="twist-k">Plot twist</p>
+    <h1>You just wrote your guarantees.</h1>
+    <div class="credit"><p>This next part comes straight from <strong>Allan Dib</strong> and his book <strong><em>The 1-Page Marketing Plan</em></strong>.</p></div>
+    <p class="punch">Watch people at an ice cream shop. They'll hold up the whole line sampling flavors on tiny plastic spoons, all to avoid getting a scoop they don't love.</p>
+    <p>That's how cautious people are about a few dollars of ice cream. Now think about how your clients feel before handing over thousands for a website.</p>
+    <p>Every answer you just wrote is a promise you already keep. But most of us keep those promises quietly, then fall back on the same mushy language as everyone else in our marketing: “satisfaction guaranteed,” “quality work,” “great service.”</p>
+    <blockquote class="pull">
+      <p>Avoid the vague crap that everyone says.</p>
+      <cite>Allan Dib</cite>
+    </blockquote>
+    <h2 class="sub">What makes a guarantee work</h2>
+    <ol class="steps">
+      <li><strong>It names a specific fear</strong><span>Not “you'll be satisfied.” The actual thing they're worried about, in plain words.</span></li>
+      <li><strong>It puts something on the line</strong><span>If you don't deliver, you lose something, not them. That's called risk reversal. It shifts the risk of the deal from their side of the table to yours.</span></li>
+    </ol>
+    <div class="example"><b>Allan's example</b><p>His example is an IT company. Instead of “satisfaction guaranteed,” they promise fixes that don't come back, calls returned within 15 minutes, and explanations in plain English. If they miss any of it, the client gets credited double what they were billed.</p></div>
+    <p><strong>Is that risky?</strong> Only if you do bad work. If you're already keeping these promises, the risk to you is close to zero, and you finally get credit in your marketing for something you've been doing all along.</p>
+    <p>Allan also points out that a strong guarantee changes your own behavior. Once it's public, it pushes you to deliver on it every single time.</p>
+    ${navRow(i, "Turn mine into guarantees")}`;
+  wireNav(L, i);
+}
+
+/* ---------- guarantee builder ---------- */
+function gText(f){
+  const p = clean(S.promise[f.id]), c = clean(S.cost[f.id]);
+  if (!p && !c) return "";
+  return `We guarantee ${p || "[your promise]"}. If we don't, ${c || "[what it costs you]"}.`;
+}
+function renderG(L, i, s){
+  const f = s.fear, total = named().length, last = s.n === total - 1;
+  const resp = (S.resp[f.id] || "").trim();
+  app.innerHTML = `
+    <div class="setup">
+      <div class="num">Guarantee ${s.n + 1} of ${total}</div>
+      <h2>“${esc(f.text.trim())}”</h2>
+      ${resp ? `<p><span class="muted">What you already do:</span> ${esc(resp)}</p>` : ""}
+    </div>
+    <div class="builder">
+      <span class="fixed">We guarantee</span>
+      <textarea class="small" id="promise-${f.id}" data-k="promise" aria-label="Your promise">${esc(S.promise[f.id] || "")}</textarea>
+      <p class="hint tight">Make it specific. Name the fear and what you'll do about it.</p>
+      <span class="fixed need">If we don't,</span>
+      <textarea class="small" id="cost-${f.id}" data-k="cost" aria-label="What happens if you don't deliver">${esc(S.cost[f.id] || "")}</textarea>
+      <p class="hint tight">What will you do or give up? It should cost you, not them.</p>
+    </div>
+    <div class="preview" id="preview" aria-live="polite"></div>
+    <details class="stuck">
+      <summary>Stuck? See an example</summary>
+      <p><b>“${esc(EX.fear)}”</b><br>We guarantee ${esc(EX.promise)}. If we don't, ${esc(EX.cost)}.</p>
+    </details>
+    ${navRow(i, last ? "See my results" : "Next fear")}`;
+  const prev = () => { const t = gText(f); document.getElementById("preview").innerHTML = t ? `<b>Your guarantee</b><p>${esc(t)}</p>` : ""; };
+  app.querySelectorAll("textarea").forEach(t => t.oninput = () => { S[t.dataset.k][f.id] = t.value; save(); prev(); });
+  prev(); wireNav(L, i);
+}
+
+/* ---------- results ---------- */
+const QS = [
+  "Which of these could go on your website or in your proposals tomorrow?",
+  "Which one makes you nervous to offer? Is that about the guarantee, or about your process?",
+  "What do you already do for clients that you've never told anyone about?"
+];
+function allText(){
+  const L = ["WHAT ARE MY CLIENTS AFRAID OF?", "Completed " + new Date().toLocaleDateString(), ""];
+  named().forEach((f, n) => L.push(`== FEAR ${n + 1}: ${f.text.trim()} ==`,
+    "How I handle it: " + ((S.resp[f.id] || "").trim() || "(no answer)"),
+    "Guarantee: " + (gText(f) || "(not written yet)"), ""));
+  L.push("== QUESTIONS TO ASK MYSELF ==");
+  QS.forEach(q => L.push(q, "", ""));
+  return L.join("\n");
+}
+function renderResults(L, i){
+  app.innerHTML = `
+    <h1>Your guarantees</h1>
+    <p class="muted">Every fear, how you handle it, and the guarantee that turns it into a selling point. Click anything to edit it.</p>
+    ${named().map(f => {
+      const g = gText(f), r = (S.resp[f.id] || "").trim();
+      return `<section class="res-svc">
+        <h2>“${esc(f.text.trim())}”</h2>
+        <div class="res-item" tabindex="0" data-go="responses" data-f="resp-${f.id}">
+          <div class="rq">How you handle it<span class="edit">Edit</span></div>
+          <div class="ra ${r ? "" : "empty"}">${esc(r || "No answer yet")}</div>
+        </div>
+        <div class="res-item" tabindex="0" data-go="g-${f.id}" data-f="promise-${f.id}">
+          <div class="rq">Your guarantee<span class="edit">Edit</span></div>
+          <div class="ra stmt ${g ? "" : "empty"}">${esc(g || "Not written yet")}</div>
+        </div>
+      </section>`;
+    }).join("")}
+    <div class="discuss"><ol>${QS.map(q => `<li>${q}</li>`).join("")}</ol></div>
+    <div class="row">
+      <button class="quiet" id="back">Back</button>
+      <span class="copyrow"><span class="toast" id="toast" role="status"></span><button class="go" id="copy">Copy results</button></span>
+    </div>`;
+  document.getElementById("back").onclick = () => go(L[i - 1].id);
+  app.querySelectorAll(".res-item[data-go]").forEach(el => {
+    const open = () => go(el.dataset.go, el.dataset.f || null);
+    el.onclick = open;
+    el.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } };
+  });
+  wireCopy(allText);
+}
+
+function wireCopy(fn){
+  document.getElementById("copy").onclick = async () => {
+    const text = fn(), toast = document.getElementById("toast");
+    try { await navigator.clipboard.writeText(text); toast.textContent = "Copied"; }
+    catch (e) {
+      const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta);
+      ta.select(); try { document.execCommand("copy"); toast.textContent = "Copied"; } catch (e2) { toast.textContent = "Select and copy manually"; }
+      ta.remove();
+    }
+    setTimeout(() => { toast.textContent = ""; }, 2500);
+  };
+}
+
+function render(){
+  const L = screens(), i = currentIndex(L), s = L[i];
+  renderNav(L, i);
+  if (s.id === "intro") renderIntro(L, i);
+  else if (s.id === "fears") renderFears(L, i);
+  else if (s.id === "responses") renderResponses(L, i);
+  else if (s.id === "done") renderDone(L, i);
+  else if (s.id === "teach") renderTeach(L, i);
+  else if (s.fear) renderG(L, i, s);
+  else renderResults(L, i);
+}
+
+document.getElementById("reset").onclick = () => {
+  if (!confirm("Clear all your answers and start over?")) return;
+  S = { fears: [{ id: uid(), text: "" }, { id: uid(), text: "" }, { id: uid(), text: "" }], resp: {}, promise: {}, cost: {}, unlocked: false };
+  save(); go("intro");
+};
+window.addEventListener("hashchange", render);
+render();
+</script>
+</body>
+</html>
