@@ -43,12 +43,6 @@
   .pair .edit-answer{margin:0; width:100%; padding:12px 14px}
   .stop{display:flex; gap:14px; align-items:center; background:var(--accent); color:var(--accent-ink); padding:16px 18px; border-radius:4px; margin-bottom:26px; font-size:1.05rem}
   .stop-mark{font-size:1.6rem; line-height:1}
-  .gate{margin-top:22px; border:1.5px dashed var(--line); border-radius:4px; padding:18px}
-  .gate label{display:block; margin-bottom:12px; font-weight:500}
-  .gate-row{display:flex; gap:10px; flex-wrap:wrap}
-  .gate input{flex:1; min-width:160px; font:inherit; color:var(--ink); background:var(--field); border:1.5px solid var(--line); border-radius:4px; padding:12px 14px}
-  .gate input:focus{outline:2px solid var(--accent); outline-offset:2px; border-color:var(--accent)}
-  .gate-err{margin-top:10px; color:var(--accent); font-weight:600; font-size:.95rem}
   button.secondary{background:transparent; color:var(--ink); border:1.5px solid var(--line)}
   button.secondary:hover{border-color:var(--accent)}
   .stage{font-size:1rem; color:var(--muted); margin-bottom:10px}
@@ -139,10 +133,6 @@ const SECTIONS = [
 const STORE = "two-futures-v1";
 let state = load() || { section: 0, step: 0, view: "intro", answers: { worst: [], best: [] }, returnTo: null };
 if (!("returnTo" in state)) state.returnTo = null;
-if (!state.unlocked) state.unlocked = {};
-// Passcodes the host reads out. Change these to whatever you like.
-const CODES = { start: "table", best: "flip", final: "gap" };
-const norm = v => String(v || "").trim().toLowerCase();
 
 function load(){ try{ const r = localStorage.getItem(STORE); return r ? JSON.parse(r) : null; }catch(e){ return null; } }
 function save(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
@@ -163,31 +153,16 @@ window.addEventListener("popstate", e => {
 });
 try { history.replaceState({v: state.view, s: state.section, st: state.step, r: state.returnTo}, ""); } catch(e){}
 
-function gate(id, label, onOk){
-  return { html: `<form class="gate" id="${id}" autocomplete="off">
-      <label for="${id}-in">${label}</label>
-      <div class="gate-row"><input id="${id}-in" type="text" inputmode="text" autocapitalize="none" placeholder="Passcode" aria-describedby="${id}-err"><button type="submit">Continue →</button></div>
-      <div class="gate-err hidden" id="${id}-err">That's not it. Check with the host.</div>
-    </form>`,
-    wire(codeKey){
-      const f = document.getElementById(id), inp = document.getElementById(id + "-in"), err = document.getElementById(id + "-err");
-      f.onsubmit = e => { e.preventDefault();
-        if (norm(inp.value) === CODES[codeKey]) { state.unlocked[codeKey] = true; save(); onOk(); }
-        else { err.classList.remove("hidden"); inp.select(); }
-      };
-    } };
-}
-function sectionDone(key){ return SECTIONS.find(x => x.key === key).questions.every((_, i) => (state.answers[key][i] || "").trim()); }
+function stopBox(msg){ return `<div class="stop"><span class="stop-mark">✋</span><div><strong>Stop here.</strong> ${esc(msg)}</div></div>`; }
 function sectionStarted(key){ return state.answers[key].some(a => (a || "").trim()); }
 
 function crumbs(){
   const cur = state.view === "intro" ? "intro" : state.view === "final" ? "final" : SECTIONS[state.section].key;
-  const worstOpen = true, bestOpen = !!state.unlocked.best || sectionDone("worst"), finalOpen = !!state.unlocked.final;
-  const items = [
+    const items = [
     { key:"intro", label:"Start", open:true, act:() => go("intro", 0, 0) },
-    { key:"worst", label:"Worst case", open:worstOpen, act:() => go("setup", 0, 0) },
-    { key:"best", label:"Best case", open:bestOpen, act:() => go("setup", 1, 0) },
-    { key:"final", label:"Both futures", open:finalOpen, act:() => go("final") }
+    { key:"worst", label:"Worst case", open:true, act:() => go("setup", 0, 0) },
+    { key:"best", label:"Best case", open:true, act:() => go("setup", 1, 0) },
+    { key:"final", label:"Both futures", open:true, act:() => go("final") }
   ];
   const html = `<nav class="crumbs" aria-label="Progress">${items.map((it, i) =>
     `${i ? '<span class="sep">›</span>' : ""}<button type="button" class="crumb ${it.key === cur ? "current" : ""}" data-i="${i}" ${it.open ? "" : "disabled"} ${it.key === cur ? 'aria-current="step"' : ""}>${it.label}</button>`).join("")}</nav>`;
@@ -223,7 +198,7 @@ function renderIntro(){
         <button id="start">Start with the worst case →</button>
         <button class="quiet" id="reset">Clear my answers</button>
       </div>
-      <div class="row hidden" id="confirm"><span>Clear everything and re-lock the passcodes?</span><button class="secondary" id="yes">Yes, clear it</button><button class="quiet" id="no">Cancel</button></div>
+      <div class="row hidden" id="confirm"><span>Clear all your answers and start over?</span><button class="secondary" id="yes">Yes, clear it</button><button class="quiet" id="no">Cancel</button></div>
     </div>`;
   wireCrumbs(c.items);
   document.getElementById("start").onclick = () => go("setup", 0, 0);
@@ -232,28 +207,25 @@ function renderIntro(){
   document.getElementById("no").onclick = () => conf.classList.add("hidden");
   document.getElementById("yes").onclick = () => {
     try { localStorage.removeItem(STORE); } catch(e){}
-    state = { section:0, step:0, view:"intro", answers:{worst:[], best:[]}, returnTo:null, unlocked:{} };
+    state = { section:0, step:0, view:"intro", answers:{worst:[], best:[]}, returnTo:null };
     render();
   };
 }
 
 function renderSetup(){
   const sec = SECTIONS[state.section];
-  const key = state.section === 0 ? "start" : "best";
   const c = crumbs();
-  const g = gate("gate-" + key, "When the host gives you the passcode, enter it here to start answering.", () => go("question", state.section, 0));
   app.innerHTML = `
     <div class="screen">
       ${c.html}
       <div class="stage">${sec.label} · Setup</div>
       <div class="setup"><h2>${esc(sec.intro)}</h2><p>${esc(sec.scene)}</p></div>
       <p class="muted">Read along while the host sets the scene. Four questions are coming next.</p>
-      ${state.unlocked[key] ? `<div class="row"><button class="quiet" id="back">${state.section === 1 ? "← Worst case review" : "← Start from the beginning"}</button>${sectionStarted(sec.key) ? `<button class="secondary" id="rev">Review my answers</button>` : ""}<button id="go">${sectionStarted(sec.key) ? "Go to the questions →" : "Start the questions →"}</button></div>`
-        : `${g.html}<div class="row"><button class="quiet" id="back">${state.section === 1 ? "← Worst case review" : "← Start from the beginning"}</button></div>`}
+      ${stopBox(`Wait for Kyle to tell you to start the ${state.section === 1 ? "best-case questions" : "questions"}.`)}
+      <div class="row"><button class="quiet" id="back">${state.section === 1 ? "← Worst case review" : "← Start from the beginning"}</button>${sectionStarted(sec.key) ? `<button class="secondary" id="rev">Review my answers</button>` : ""}<button id="go">${sectionStarted(sec.key) ? "Go to the questions →" : "Start the questions →"}</button></div>
     </div>`;
   wireCrumbs(c.items);
   document.getElementById("back").onclick = () => state.section === 1 ? go("review", 0, 0) : go("intro", 0, 0);
-  if (!state.unlocked[key]) { g.wire(key); return; }
   document.getElementById("go").onclick = () => go("question", state.section, 0);
   const rev = document.getElementById("rev"); if (rev) rev.onclick = () => go("review", state.section, 0);
 }
@@ -313,23 +285,21 @@ function renderReview(){
   const sec = SECTIONS[state.section];
   const last = state.section === SECTIONS.length - 1;
   const c = crumbs();
-  const g = gate("gate-final", "When the group is ready, the host will give you a passcode to see both futures.", () => go("final"));
   app.innerHTML = `
     <div class="screen">
       ${c.html}
-      ${last ? `<div class="stop"><span class="stop-mark">✋</span><div><strong>Stop here.</strong> We'll discuss as a group before moving on.</div></div>` : `<div class="stop"><span class="stop-mark">✋</span><div><strong>Stop here.</strong> We'll discuss as a group before moving on. You can read ahead to the best-case setup, but the questions are locked until the host gives you the next passcode.</div></div>`}
+      ${stopBox(`We'll discuss as a group before moving on. Wait for Kyle to tell you to continue to ${last ? "both futures" : "the best case"}.`)}
       <div class="stage">${sec.label} · Review</div>
       <h2>${esc(sec.intro)}</h2>
       <p class="muted">Click any answer to change it.</p>
       <div class="review">${reviewBlock(sec, "review")}</div>
-      ${!last || state.unlocked.final ? `<div class="row">
+      <div class="row">
         <button class="quiet" id="back">${last ? "← Worst case review" : "← Start from the beginning"}</button>
         <button id="go">${last ? "See both futures →" : "Next: the best case →"}</button>
-      </div>` : `${g.html}<div class="row"><button class="quiet" id="back">← Worst case review</button></div>`}
+      </div>
     </div>`;
   wireCrumbs(c.items); wireEdits();
   document.getElementById("back").onclick = () => last ? go("review", 0, 0) : go("intro", 0, 0);
-  if (last && !state.unlocked.final) { g.wire("final"); return; }
   document.getElementById("go").onclick = () => last ? go("final") : go("setup", 1, 0);
 }
 
