@@ -13,6 +13,6 @@ Group exercises for TABLE, published with GitHub Pages. The root `index.html` li
 1. Make a new folder, e.g. `my-exercise/`, with an `index.html` inside.
 2. Give it its **own** localStorage key (e.g. `my-exercise-v1`). Every exercise shares the same domain, so two exercises with the same key would overwrite each other's answers.
 3. Add `<a class="home" href="../">← All exercises</a>` at the top so people can get back to the list.
-4. Add an entry to the `EXERCISES` list in the root `index.html` (path, title, category tags, blurb, storage key, and a small `hasAnswers` check so the list can show "In progress").
+4. Add an entry to the `EXERCISES` list in the root `index.html` (path, title, category tags, blurb, storage key, and a small `hasAnswers` check so the list can show "In progress"). If you use a new category tag, give it a color in the `.tag[data-tag=...]` rules near the top of `index.html`.
 
 Don't rename an existing exercise's storage key unless you're fine with everyone's saved answers disappearing.
